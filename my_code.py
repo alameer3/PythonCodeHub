@@ -15,11 +15,7 @@ from datetime import datetime
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
-# يمكنك استيراد الوحدات من المشروع الموجود (إذا احتجتها)
-# You can import modules from the existing project (if needed)
-# من أجل البساطة، سنكتب دوال بسيطة بدلاً من الاستيراد
-# For simplicity, we'll write simple functions instead of importing
-
+# دوال بسيطة للاستخدام
 def validate_email_simple(email):
     """تحقق بسيط من صحة البريد الإلكتروني"""
     return "@" in email and "." in email
