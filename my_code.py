@@ -1,41 +1,88 @@
-# ملف الكود الخاص بك
+# ملف الكود الخاص بك - مثال تطبيقي متطور
 import os
+import json
 import time
+from datetime import datetime
 import requests
 
-# تثبيت الحزم عبر بايثون
-os.system("apt update -y")
-os.system("apt install -y firefox x11vnc xvfb lxde novnc websockify wget")
+def main():
+    """دالة رئيسية لتشغيل التطبيق"""
+    print("🚀 مرحباً بك في التطبيق المتطور!")
+    print("=" * 50)
+    
+    # عرض معلومات النظام
+    show_system_info()
+    
+    # تشغيل عمليات مختلفة
+    run_calculations()
+    run_data_processing()
+    run_api_example()
+    
+    print("\n✅ تم تشغيل جميع العمليات بنجاح!")
 
-# إعداد كلمة مرور VNC
-os.system("mkdir -p ~/.vnc")
-os.system("x11vnc -storepasswd 123456 ~/.vnc/passwd")
+def show_system_info():
+    """عرض معلومات النظام"""
+    print("\n📊 معلومات النظام:")
+    print(f"  الوقت الحالي: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"  مجلد العمل: {os.getcwd()}")
+    print(f"  متغيرات البيئة المهمة:")
+    for key in ['PATH', 'HOME', 'USER']:
+        value = os.environ.get(key, 'غير محدد')
+        print(f"    {key}: {value[:50]}..." if len(str(value)) > 50 else f"    {key}: {value}")
 
-# تشغيل الشاشة الوهمية وسطح المكتب وفايرفوكس
-os.system("Xvfb :1 -screen 0 1024x768x16 &")
-os.environ["DISPLAY"] = ":1"
-os.system("startlxde &")
-os.system("firefox &")
+def run_calculations():
+    """تشغيل عمليات حسابية متقدمة"""
+    print("\n🧮 العمليات الحسابية:")
+    
+    # حساب القوى
+    numbers = [2, 3, 5, 7, 10]
+    for num in numbers:
+        square = num ** 2
+        cube = num ** 3
+        print(f"  العدد {num}: المربع = {square}, المكعب = {cube}")
+    
+    # حساب المتوسط
+    average = sum(numbers) / len(numbers)
+    print(f"  المتوسط: {average:.2f}")
 
-# تحميل Cloudflared وتشغيله
-os.system("wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O cloudflared")
-os.system("chmod +x cloudflared")
-os.system("./cloudflared tunnel --url http://localhost:6080/ --no-autoupdate &")
+def run_data_processing():
+    """معالجة البيانات"""
+    print("\n📁 معالجة البيانات:")
+    
+    # إنشاء بيانات تجريبية
+    data = {
+        "المشروع": "تطبيق بايثون متطور",
+        "التاريخ": datetime.now().isoformat(),
+        "البيانات": [
+            {"الاسم": "أحمد", "العمر": 25, "المدينة": "الرياض"},
+            {"الاسم": "فاطمة", "العمر": 30, "المدينة": "جدة"},
+            {"الاسم": "محمد", "العمر": 28, "المدينة": "الدمام"}
+        ]
+    }
+    
+    # حفظ البيانات في ملف
+    filename = "data_output.json"
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    print(f"  ✅ تم حفظ البيانات في ملف: {filename}")
+    print(f"  📊 عدد السجلات: {len(data['البيانات'])}")
 
-# تشغيل noVNC
-os.system("websockify --web=/usr/share/novnc/ 6080 localhost:5900 &")
+def run_api_example():
+    """مثال على استخدام API"""
+    print("\n🌐 مثال API:")
+    
+    try:
+        # مثال على طلب HTTP بسيط
+        response = requests.get("https://httpbin.org/json", timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print("  ✅ تم الاتصال بـ API بنجاح")
+            print(f"  📋 البيانات المستلمة: {json.dumps(data, indent=2)[:100]}...")
+        else:
+            print(f"  ❌ خطأ في الاتصال: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"  ❌ خطأ في الشبكة: {str(e)}")
 
-# الانتظار وجلب رابط cloudflared
-time.sleep(15)
-try:
-    r = requests.get("http://localhost:4040/api/tunnels")
-    url = r.json()['tunnels'][0]['public_url']
-    print("✅ رابط سطح المكتب:", url + "/vnc.html?password=123456")
-except:
-    print("❌ لم يتم الحصول على الرابط. حاول لاحقاً.")
-print("مرحباً! ضع كودك في هذا الملف")
-
-# مثال على حساب القوى إذا كنت تقصد ذلك
-number = 5
-square = number ** 2
-print(f"{number} مرفوع للقوة الثانية = {square}")
+if __name__ == "__main__":
+    main()
