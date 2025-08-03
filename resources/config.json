@@ -1,0 +1,45 @@
+{
+  "app": {
+    "name": "Python Best Practices Demo",
+    "version": "1.0.0",
+    "description": "A well-structured Python project demonstrating best practices"
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "date_format": "%Y-%m-%d %H:%M:%S"
+  },
+  "data": {
+    "directory": "data",
+    "max_file_size": "100MB",
+    "supported_formats": ["csv", "json"],
+    "encoding": "utf-8"
+  },
+  "processing": {
+    "batch_size": 1000,
+    "max_workers": 4,
+    "timeout_seconds": 30,
+    "validate_on_load": true
+  },
+  "api": {
+    "base_url": "https://api.example.com",
+    "timeout": 30,
+    "retry_attempts": 3,
+    "rate_limit": 10
+  },
+  "validation": {
+    "strict_mode": false,
+    "required_fields": ["name", "email"],
+    "email_validation": true,
+    "age_range": {
+      "min": 0,
+      "max": 150
+    }
+  },
+  "output": {
+    "csv_delimiter": ",",
+    "json_indent": 2,
+    "include_metadata": true,
+    "timestamp_format": "%Y-%m-%d %H:%M:%S"
+  }
+}
