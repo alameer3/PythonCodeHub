@@ -2,6 +2,7 @@ modules = ["nodejs-20", "python-3.11", "web", "bash"]
 
 [nix]
 channel = "stable-25_05"
+packages = ["xvfb-run", "x11vnc", "netcat"]
 
 [workflows]
 runButton = "Project"
@@ -25,7 +26,7 @@ args = "My Code Runner"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Tool Runner"
+args = "Tool Direct Runner"
 
 [[workflows.workflow]]
 name = "Python Best Practices Demo"
@@ -52,13 +53,13 @@ task = "shell.exec"
 args = "python my_code.py"
 
 [[workflows.workflow]]
-name = "Tool Runner"
+name = "Tool Direct Runner"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 replit_desktop.py"
-waitForPort = 5000
+args = "python3 simple_tool_executor.py"
+waitForPort = 8080
 
 [agent]
 expertMode = true
