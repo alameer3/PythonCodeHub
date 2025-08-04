@@ -35,6 +35,10 @@ args = "Desktop Web Server"
 task = "workflow.run"
 args = "Interactive Desktop"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Comprehensive System"
+
 [[workflows.workflow]]
 name = "Python Best Practices Demo"
 author = "agent"
@@ -83,6 +87,14 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python3 working_desktop.py"
+
+[[workflows.workflow]]
+name = "Comprehensive System"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 run_everything.py"
 
 [agent]
 expertMode = true

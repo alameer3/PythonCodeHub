@@ -1,0 +1,44 @@
+{
+  "arithmetic": {
+    "sum": 231,
+    "average": 23.1,
+    "max": 89,
+    "min": 1,
+    "squares": [
+      1,
+      4,
+      9,
+      25,
+      64
+    ],
+    "cubes": [
+      1,
+      8,
+      27,
+      125,
+      512
+    ]
+  },
+  "statistics": {
+    "median": 13,
+    "range": 88,
+    "variance": 747.8900000000001
+  },
+  "data_processing": {
+    "total_records": 5,
+    "average_age": 28.2,
+    "average_salary": 5500.0,
+    "cities": [
+      "الطائف",
+      "الدمام",
+      "جدة",
+      "الرياض",
+      "المدينة"
+    ],
+    "age_groups": {
+      "20-25": 1,
+      "26-30": 3,
+      "31-35": 1
+    }
+  }
+}
