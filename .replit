@@ -5,100 +5,6 @@ channel = "stable-25_05"
 packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs", "chromium", "nettools"]
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Python Best Practices Demo"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "python_app"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "My Code Runner"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Complete Tool System"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Desktop Environment"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Original Tool System"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Proper Tool System"
-
-[[workflows.workflow]]
-name = "Python Best Practices Demo"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py demo"
-
-[[workflows.workflow]]
-name = "python_app"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py demo"
-
-[[workflows.workflow]]
-name = "My Code Runner"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python my_code.py"
-
-[[workflows.workflow]]
-name = "Complete Tool System"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 replit_desktop.py"
-waitForPort = 8080
-
-[[workflows.workflow]]
-name = "Desktop Environment"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py demo"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Original Tool System"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd tool && ./start.sh"
-waitForPort = 6080
-
-[[workflows.workflow]]
-name = "Proper Tool System"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python run_tool.py"
-waitForPort = 8080
 
 [agent]
 expertMode = true
@@ -122,6 +28,11 @@ externalPort = 3002
 [[ports]]
 localPort = 5004
 externalPort = 3003
+
+[[ports]]
+localPort = 5902
+externalPort = 9000
+exposeLocalhost = true
 
 [[ports]]
 localPort = 8080
