@@ -364,7 +364,7 @@
                 
                 <div class="checkbox-group">
                     <label>
-                        <input id="encryptInput" type="checkbox"> 🔒 استخدام التشفير (HTTPS)
+                        <input id="encryptInput" type="checkbox"> 🔒 استخدام التشفير (غير مُوصى به)
                     </label>
                 </div>
                 
@@ -454,9 +454,9 @@
                 updateStatus('🏠 اتصال محلي تم اكتشافه');
             } else {
                 hostInput.value = currentHost;
-                portInput.value = '443';
-                encryptInput.checked = true;
-                updateStatus('🌐 اتصال خارجي مشفر تم اكتشافه');
+                portInput.value = '5000';
+                encryptInput.checked = false;
+                updateStatus('🌐 اتصال خارجي بدون تشفير تم اكتشافه');
             }
         }
         
