@@ -1,8 +1,8 @@
-modules = ["nodejs-20", "python-3.11", "web", "bash"]
+modules = ["nodejs-20", "web", "bash", "python-3.11"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs", "chromium"]
+packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs", "chromium", "nettools"]
 
 [workflows]
 runButton = "Project"
@@ -27,6 +27,10 @@ args = "My Code Runner"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Complete Tool System"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Desktop Environment"
 
 [[workflows.workflow]]
 name = "Python Best Practices Demo"
@@ -61,12 +65,33 @@ task = "shell.exec"
 args = "python3 replit_desktop.py"
 waitForPort = 8080
 
+[[workflows.workflow]]
+name = "Desktop Environment"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py demo"
+waitForPort = 5000
+
 [agent]
 expertMode = true
 
 [[ports]]
 localPort = 5000
 externalPort = 5000
+
+[[ports]]
+localPort = 5001
+externalPort = 3000
+
+[[ports]]
+localPort = 5002
+externalPort = 3001
+
+[[ports]]
+localPort = 5003
+externalPort = 3002
 
 [[ports]]
 localPort = 8080

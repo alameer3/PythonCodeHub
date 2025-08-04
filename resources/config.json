@@ -1,0 +1,22 @@
+{
+  "ports": {
+    "vnc": 5900,
+    "websocket": 6080,
+    "http": 8080,
+    "main": 5000
+  },
+  "display": ":1",
+  "vnc_password": "123456",
+  "timezone": "Asia/Riyadh",
+  "language": "ar",
+  "services": {
+    "vnc_enabled": true,
+    "web_desktop_enabled": true,
+    "auto_start_browser": false
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "logs/app.log",
+    "max_size": "10MB"
+  }
+}
