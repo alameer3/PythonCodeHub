@@ -502,21 +502,30 @@
             updateStatus('🔄 جاري الاتصال...');
             
             try {
-                // تطبيق الإعدادات على UI
-                document.getElementById('noVNC_setting_host').value = host;
-                document.getElementById('noVNC_setting_port').value = port;
-                document.getElementById('noVNC_setting_password').value = password;
-                document.getElementById('noVNC_setting_encrypt').checked = encrypt;
-                
                 // إخفاء نافذة الاتصال
                 document.getElementById('connectDialog').classList.add('hidden');
                 
-                // إعداد URL للاتصال
-                const protocol = encrypt ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${host}:${port}/websockify`;
+                // إعداد الإعدادات للاتصال
+                const connectionSettings = {
+                    defaults: {
+                        host: host,
+                        port: port,
+                        password: password,
+                        encrypt: encrypt,
+                        view_only: false,
+                        scale_viewport: deviceType !== 'desktop',
+                        drag_viewport: touchSupported,
+                        local_cursor: true,
+                        show_dot_cursor: !touchSupported,
+                        touch_button: touchSupported ? 1 : 0,
+                        quality_level: deviceType === 'mobile' ? 4 : 6,
+                        compression_level: deviceType === 'mobile' ? 3 : 2
+                    },
+                    mandatory: {}
+                };
                 
-                // الاتصال باستخدام noVNC UI
-                UI.connect(wsUrl, password);
+                // بدء noVNC بالطريقة الصحيحة
+                UI.start({ settings: connectionSettings });
                 updateStatus('✅ جاري الاتصال...');
                 
             } catch (error) {
@@ -601,8 +610,8 @@
                 console.log("Couldn't fetch mandatory.json: " + err);
             }
             
-            // بدء noVNC مع الإعدادات
-            UI.start(defaults, mandatory);
+            // بدء noVNC مع الإعدادات الافتراضية
+            UI.start({ settings: { defaults: defaults, mandatory: mandatory } });
             updateStatus(`🎯 جاهز للاستخدام على ${detectDevice()}`);
         });
         
