@@ -1,4 +1,4 @@
-modules = ["python-3.11"]
+modules = ["nodejs-20", "python-3.11", "web", "bash"]
 
 [nix]
 channel = "stable-25_05"
@@ -58,3 +58,6 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python continuous_runner.py"
+
+[agent]
+expertMode = true
