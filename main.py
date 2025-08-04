@@ -19,7 +19,7 @@ class DesktopEnvironment:
         self.services = {}
         self.ports = {
             'vnc': 5900,
-            'websocket': 6080, 
+            'websocket': 5000,  # Use port 5000 for Replit compatibility
             'http': 8080
         }
         self.setup_environment()
@@ -214,11 +214,10 @@ class DesktopEnvironment:
             subprocess.Popen([
                 "x11vnc", 
                 "-display", display,
-                "-passwd", "123456", 
+                "-usepw",  # استخدام كلمة مرور من الملف
                 "-forever", "-shared", 
                 "-noxdamage", "-noxfixes",
                 "-rfbport", "5900",
-                "-rfbaddr", "0.0.0.0",  # ربط بجميع عناوين IP
                 "-nap",  # تقليل استهلاك CPU
                 "-wait", "50",  # انتظار بسيط
                 "-defer", "1",  # تأجيل التحديثات
@@ -258,25 +257,38 @@ class DesktopEnvironment:
         except:
             pass
         
-        websockify_dir = "noVNC/utils/websockify"
-        if os.path.exists(websockify_dir):
+        # محاولة استخدام python module مع البيئة الصحيحة
+        try:
+            # تعيين PYTHONPATH للعثور على websockify
+            env = os.environ.copy()
+            env['PYTHONPATH'] = "./.pythonlibs/lib/python3.12/site-packages:" + env.get('PYTHONPATH', '')
+            
+            subprocess.Popen([
+                "./.pythonlibs/bin/python", "-m", "websockify",
+                "--web", "./noVNC",
+                "0.0.0.0:5000", "localhost:5900"
+            ], stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT, env=env)
+            
+            time.sleep(3)
+            self.log("✅ websockify يعمل على المنفذ 5000")
+            return True
+        except Exception as e:
+            self.log(f"❌ فشل تشغيل websockify: {e}")
+            # محاولة بديلة مع python3 العادي
             try:
-                # تشغيل websockify مباشرة
                 subprocess.Popen([
-                    "python3", "-m", "websockify",
-                    "--web", "../..",
-                    "0.0.0.0:6080", "0.0.0.0:5900"
-                ], cwd=websockify_dir, stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT)
+                    "python3", "-c", 
+                    "import sys; sys.path.insert(0, './.pythonlibs/lib/python3.12/site-packages'); "
+                    "from websockify.websocketproxy import websockify_init; "
+                    "websockify_init()"
+                ], stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT)
                 
-                time.sleep(2)
-                self.log("✅ websockify يعمل على المنفذ 6080")
+                time.sleep(3)
+                self.log("✅ websockify يعمل على المنفذ 5000 (fallback)")
                 return True
-            except Exception as e:
-                self.log(f"❌ فشل تشغيل websockify: {e}")
+            except Exception as e2:
+                self.log(f"❌ فشل تشغيل websockify (fallback): {e2}")
                 return False
-        else:
-            self.log("❌ websockify غير موجود")
-            return False
     
     def start_http_server(self):
         """تشغيل خادم HTTP"""
@@ -300,18 +312,18 @@ class DesktopEnvironment:
     
     def check_novnc_health(self):
         """فحص صحة noVNC"""
-        self.log("🧪 [8/12] التحقق من تشغيل noVNC على المنفذ 6080...")
+        self.log("🧪 [8/12] التحقق من تشغيل noVNC على المنفذ 5000...")
         
         # انتظار قليل لبدء الخدمة
         time.sleep(3)
         
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex(('localhost', 6080))
+            result = sock.connect_ex(('localhost', 5000))
             sock.close()
             
             if result == 0:
-                self.log("✅ noVNC يعمل على المنفذ 6080")
+                self.log("✅ noVNC يعمل على المنفذ 5000")
                 return True
             else:
                 self.log("❌ noVNC لا يعمل! فحص السجل...")

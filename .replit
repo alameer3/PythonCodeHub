@@ -2,7 +2,7 @@ modules = ["nodejs-20", "web", "bash", "python-3.11"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs", "chromium", "nettools"]
+packages = ["chromium", "curl", "firefox", "fluxbox", "git", "netcat", "nettools", "nodejs", "python3", "tigervnc", "wget", "x11vnc", "xvfb-run"]
 
 [workflows]
 runButton = "Project"
@@ -23,7 +23,7 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python main.py"
-waitForPort = 6080
+waitForPort = 5000
 
 [agent]
 expertMode = true
@@ -51,7 +51,6 @@ localPort = 5903
 
 [[ports]]
 localPort = 6080
-externalPort = 9000
 
 [[ports]]
 localPort = 8080
