@@ -454,7 +454,7 @@ class DesktopEnvironment:
         if working_services >= 4:  # إذا كان نصف الخدمات يعمل على الأقل
             self.log("🌐 النظام جاهز للاستخدام!")
             self.log("🔗 الروابط:")
-            self.log("  🎯 الواجهة الذكية (مُوصى بها): http://localhost:5000/adaptive.html")
+            self.log("  ✨ الواجهة المبسطة (مُوصى بها): http://localhost:5000/simple.html")
             self.log("  💻 سطح المكتب العادي: http://localhost:5000/vnc.html")
             self.log("  🇸🇦 واجهة عربية كاملة: http://localhost:5000/arabic.html")
             

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="noVNC_loading">
+<head>
+    <title>سطح المكتب البعيد</title>
+    
+    <link rel="icon" type="image/x-icon" href="app/images/icons/novnc.ico">
+    <meta name="theme-color" content="#313131">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="stylesheet" href="app/styles/constants.css">
+    <link rel="stylesheet" href="app/styles/base.css">
+    <link rel="stylesheet" href="app/styles/input.css">
+    
+    <link rel="preload" as="image" href="app/images/info.svg">
+    <link rel="preload" as="image" href="app/images/error.svg">
+    <link rel="preload" as="image" href="app/images/warning.svg">
+
+    <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
+    
+    <style>
+        .arabic-header {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            direction: rtl;
+        }
+        
+        .mobile-controls {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+        
+        .mobile-btn {
+            background: rgba(52, 73, 94, 0.9);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-controls {
+                display: none;
+            }
+        }
+        
+        body {
+            margin-top: 45px;
+        }
+    </style>
+
+    <script type="module">
+        import UI from "./app/ui.js";
+        import * as Log from './core/util/logging.js';
+
+        let defaults = {};
+        let mandatory = {};
+
+        // تحميل الإعدادات من الملفات (مثل vnc.html)
+        try {
+            const response = await fetch('./defaults.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+            defaults = await response.json();
+        } catch (err) {
+            Log.Error("Couldn't fetch defaults.json: " + err);
+        }
+
+        try {
+            const response = await fetch('./mandatory.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+            mandatory = await response.json();
+        } catch (err) {
+            Log.Error("Couldn't fetch mandatory.json: " + err);
+        }
+
+        // تحديد نوع الجهاز وضبط الإعدادات
+        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
+        
+        if (isMobile) {
+            // إعدادات محسنة للهاتف
+            defaults.scale_viewport = true;
+            defaults.drag_viewport = true;
+            defaults.show_dot_cursor = false;
+            defaults.touch_button = 1;
+            defaults.quality_level = 4;
+            defaults.compression_level = 3;
+        }
+
+        // بدء noVNC
+        UI.start({ settings: { defaults: defaults, mandatory: mandatory } });
+        
+        // وظائف التحكم للهاتف
+        window.toggleFullscreen = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        };
+        
+        window.showKeyboard = function() {
+            const input = document.createElement('input');
+            input.style.position = 'fixed';
+            input.style.left = '-1000px';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.focus();
+            setTimeout(() => document.body.removeChild(input), 100);
+        };
+        
+        window.reconnect = function() {
+            location.reload();
+        };
+    </script>
+</head>
+
+<body>
+    <div class="arabic-header">
+        🖥️ سطح المكتب البعيد - واجهة مبسطة
+    </div>
+    
+    <div class="mobile-controls">
+        <button class="mobile-btn" onclick="toggleFullscreen()">📺 شاشة كاملة</button>
+        <button class="mobile-btn" onclick="showKeyboard()">⌨️ لوحة مفاتيح</button>
+        <button class="mobile-btn" onclick="reconnect()">🔄 إعادة تحميل</button>
+    </div>
+    
+    <div id="noVNC_fallback_error" class="noVNC_center" style="display: none;">
+        <div>متصفحك لا يدعم noVNC. يرجى استخدام متصفح حديث.</div>
+    </div>
+
+    <div id="noVNC_container">
+        <div id="noVNC_screen">
+            <canvas id="noVNC_canvas" width="0" height="0">
+                متصفحك لا يدعم Canvas
+            </canvas>
+        </div>
+    </div>
+</body>
+</html>
