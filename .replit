@@ -23,7 +23,7 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python main.py"
-waitForPort = 8080
+waitForPort = 6080
 
 [agent]
 expertMode = true

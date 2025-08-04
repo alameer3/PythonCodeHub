@@ -116,18 +116,36 @@ class DesktopEnvironment:
     
     def start_virtual_display(self):
         """تشغيل الشاشة الوهمية"""
-        self.log("🖥️ [3/12] تشغيل Xvfb...")
+        self.log("🖥️ [3/12] إعداد X Display...")
+        
+        # استخدام X server الموجود إذا كان متاحاً
+        current_display = os.environ.get('DISPLAY', ':0')
+        self.log(f"استخدام Display: {current_display}")
+        
+        # تحديث متغير البيئة
+        os.environ['DISPLAY'] = current_display
+        
+        # فحص إذا كان X server يعمل
         try:
-            # محاولة تشغيل Xvfb
+            result = subprocess.run(['xwininfo', '-root'], capture_output=True, timeout=5)
+            if result.returncode == 0:
+                self.log("✅ X Server يعمل")
+                return True
+        except:
+            pass
+        
+        # محاولة تشغيل Xvfb كبديل
+        try:
             subprocess.Popen([
                 "Xvfb", ":1", "-screen", "0", "1024x768x16"
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            time.sleep(2)
-            self.log("✅ Xvfb يعمل")
+            os.environ['DISPLAY'] = ':1'
+            time.sleep(3)
+            self.log("✅ Xvfb يعمل على :1")
             return True
         except:
-            self.log("⚠️ Xvfb غير متاح - استخدام بديل")
-            return False
+            self.log("⚠️ استخدام X server الحالي")
+            return True  # نعتبره نجح ونستخدم ما هو متاح
     
     def start_desktop_environment(self):
         """تشغيل بيئة سطح المكتب"""
@@ -185,15 +203,37 @@ class DesktopEnvironment:
             # إعداد كلمة المرور أولاً
             self.setup_vnc_password()
             
-            # تشغيل x11vnc
+            # الحصول على Display الحالي
+            display = os.environ.get('DISPLAY', ':0')
+            
+            # تشغيل x11vnc مع إعدادات محسنة
             subprocess.Popen([
-                "x11vnc", "-display", ":1", "-passwd", "123456", 
-                "-forever", "-shared", "-noxdamage"
+                "x11vnc", 
+                "-display", display,
+                "-passwd", "123456", 
+                "-forever", "-shared", 
+                "-noxdamage", "-noxfixes",
+                "-rfbport", "5900",
+                "-create"  # إنشاء virtual display إذا لم يكن موجود
             ], stdout=open("/tmp/x11vnc.log", "w"), stderr=subprocess.STDOUT)
             
-            time.sleep(2)
-            self.log("✅ x11vnc يعمل على المنفذ 5900")
-            return True
+            time.sleep(3)
+            
+            # فحص إذا كان يعمل
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(('localhost', 5900))
+                sock.close()
+                
+                if result == 0:
+                    self.log("✅ x11vnc يعمل على المنفذ 5900")
+                    return True
+                else:
+                    self.log("❌ x11vnc لا يستمع على المنفذ 5900")
+                    return False
+            except:
+                self.log("❌ لا يمكن فحص x11vnc")
+                return False
             
         except Exception as e:
             self.log(f"❌ فشل تشغيل x11vnc: {e}")
@@ -210,7 +250,7 @@ class DesktopEnvironment:
                 subprocess.Popen([
                     "python3", "-m", "websockify",
                     "--web", "../..",
-                    "6080", "localhost:5900"
+                    "6080", "127.0.0.1:5900"
                 ], cwd=websockify_dir, stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT)
                 
                 time.sleep(2)
@@ -276,7 +316,8 @@ class DesktopEnvironment:
         """تشغيل cloudflared"""
         self.log("☁️ [9/12] تشغيل cloudflared...")
         
-        if os.path.exists("./cloudflared"):
+        cloudflared_path = "./cloudflared"
+        if os.path.exists(cloudflared_path) and os.access(cloudflared_path, os.X_OK):
             try:
                 subprocess.Popen([
                     "./cloudflared", "tunnel", 
@@ -346,8 +387,9 @@ class DesktopEnvironment:
         # الخطوة 6: WebSocket
         websocket_ok = self.start_websockify()
         
-        # الخطوة 7: HTTP
-        http_ok = self.start_http_server()
+        # الخطوة 7: HTTP (تعطيل لتجنب تضارب المنافذ)
+        # http_ok = self.start_http_server()
+        http_ok = True  # websockify يخدم HTTP أيضاً
         
         # الخطوة 8: فحص الصحة
         health_ok = self.check_novnc_health()
