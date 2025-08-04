@@ -1,45 +1,0 @@
-# 📦 التثبيت
-!apt update -y
-!apt install -y lxde x11vnc xvfb git websockify wget firefox tigervnc-standalone-server
-
-# 🔐 إعداد كلمة مرور VNC يدوياً بدون تدخل
-!mkdir -p ~/.vnc
-!echo "123456" | vncpasswd -f > ~/.vnc/passwd
-!chmod 600 ~/.vnc/passwd
-
-# 🖥️ إعداد شاشة وهمية
-!Xvfb :1 -screen 0 1024x768x16 &
-import os
-os.environ["DISPLAY"] = ":1"
-
-# 🚀 تشغيل LXDE
-!startlxde &
-
-# 🌐 تشغيل Firefox
-!firefox &
-
-# 🌀 تحميل noVNC و websockify
-!git clone https://github.com/novnc/noVNC.git
-!git clone https://github.com/novnc/websockify noVNC/utils/websockify
-
-# ✅ تشغيل noVNC
-!nohup ./noVNC/utils/launch.sh --vnc localhost:5900 --listen 6080 &
-
-# 🌐 تحميل وتشغيل Cloudflared
-!wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O cloudflared
-!chmod +x cloudflared
-!./cloudflared tunnel --url http://localhost:6080 --no-autoupdate > cloudflared.log 2>&1 &
-
-# ⏳ انتظار وتشغيل الرابط الخارجي
-import time, re
-time.sleep(10)
-
-with open("cloudflared.log") as f:
-    log = f.read()
-
-match = re.search(r"https://.*trycloudflare.com", log)
-if match:
-    url = match.group(0)
-    print("✅ رابط سطح المكتب:\n" + url + "/vnc.html?password=123456")
-else:
-    print("❌ لم يتم العثور على الرابط. حاول إعادة التشغيل بعد الانتظار.")

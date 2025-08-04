@@ -25,19 +25,7 @@ args = "My Code Runner"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Continuous Desktop"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Desktop Web Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Interactive Desktop"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Comprehensive System"
+args = "Tool Runner"
 
 [[workflows.workflow]]
 name = "Python Best Practices Demo"
@@ -64,37 +52,13 @@ task = "shell.exec"
 args = "python my_code.py"
 
 [[workflows.workflow]]
-name = "Continuous Desktop"
+name = "Tool Runner"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python continuous_runner.py"
-
-[[workflows.workflow]]
-name = "Desktop Web Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 simple_server.py"
-waitForPort = 8080
-
-[[workflows.workflow]]
-name = "Interactive Desktop"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 working_desktop.py"
-
-[[workflows.workflow]]
-name = "Comprehensive System"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 run_everything.py"
+args = "python3 replit_desktop.py"
+waitForPort = 5000
 
 [agent]
 expertMode = true
