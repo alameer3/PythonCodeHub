@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" class="noVNC_loading">
+<head>
+    <title>سطح المكتب البعيد - وضع الجوال</title>
+    
+    <link rel="icon" type="image/x-icon" href="app/images/icons/novnc.ico">
+    <meta name="theme-color" content="#313131">
+    
+    <!-- إعدادات الهاتف المحمول -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- أيقونات الهاتف -->
+    <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="app/images/icons/novnc-ios-180.png">
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="app/images/icons/novnc-ios-120.png">
+    
+    <!-- الأنماط -->
+    <link rel="stylesheet" href="app/styles/constants.css">
+    <link rel="stylesheet" href="app/styles/base.css">
+    <link rel="stylesheet" href="app/styles/input.css">
+    
+    <style>
+        /* تحسينات للهاتف المحمول */
+        body {
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        #noVNC_container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        #noVNC_canvas {
+            touch-action: none;
+        }
+        
+        /* شريط التحكم المبسط للجوال */
+        #noVNC_control_bar {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .mobile-control-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .mobile-control-btn:active {
+            background: #45a049;
+        }
+        
+        /* إخفاء التحكم العادي */
+        .noVNC_control_bar_anchor {
+            display: none !important;
+        }
+        
+        /* تحسين شاشة الاتصال */
+        .noVNC_connect_dlg {
+            direction: rtl;
+            text-align: right;
+        }
+    </style>
+    
+    <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
+    
+    <script type="module">
+        import UI from "./app/ui.js";
+        import * as Log from './core/util/logging.js';
+
+        let response;
+        let defaults = {};
+        let mandatory = {};
+
+        // تحميل الإعدادات الافتراضية
+        try {
+            response = await fetch('./defaults.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+            defaults = await response.json();
+        } catch (err) {
+            Log.Error("Couldn't fetch defaults.json: " + err);
+        }
+
+        try {
+            response = await fetch('./mandatory.json');
+            if (!response.ok) {
+                throw Error("" + response.status + " " + response.statusText);
+            }
+            mandatory = await response.json();
+        } catch (err) {
+            Log.Error("Couldn't fetch mandatory.json: " + err);
+        }
+
+        // إعدادات خاصة للجوال
+        const mobileDefaults = {
+            ...defaults,
+            viewOnly: false,
+            touchButton: 1,  // تفعيل اللمس
+            scaleViewport: true,  // تكبير تلقائي
+            resizeSession: false,
+            showDotCursor: false,
+            localCursor: true,
+            dragViewport: true,  // السحب لتحريك الشاشة
+            qualityLevel: 6,  // جودة متوسطة للسرعة
+            compressionLevel: 2,
+            bell: false,
+            clipboard: true
+        };
+
+        // تشغيل واجهة noVNC مع الإعدادات المحسنة للجوال
+        UI.start(mobileDefaults, mandatory);
+
+        // إضافة أحداث اللمس المخصصة
+        document.addEventListener('DOMContentLoaded', function() {
+            // منع التمرير الافتراضي
+            document.body.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+            
+            // منع التكبير المزدوج
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                let now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+        });
+    </script>
+</head>
+
+<body>
+    <div id="noVNC_fallback_error" class="noVNC_center">
+        <div>
+            <div>متصفحك لا يدعم noVNC.</div>
+            <br>
+            <div>يرجى استخدام متصفح يدعم WebSockets و Canvas.</div>
+        </div>
+    </div>
+
+    <div id="noVNC_container">
+        <!-- شاشة تسجيل الدخول -->
+        <div id="noVNC_connect_dlg" class="noVNC_open">
+            <div>
+                <div>
+                    <label>الخادم:</label>
+                    <input id="noVNC_setting_host" type="text" value="localhost">
+                </div>
+                <div>
+                    <label>المنفذ:</label>
+                    <input id="noVNC_setting_port" type="number" value="5000">
+                </div>
+                <div>
+                    <label>كلمة المرور:</label>
+                    <input id="noVNC_setting_password" type="password" value="123456">
+                </div>
+                <div>
+                    <input id="noVNC_connect_button" type="button" value="اتصال" class="mobile-control-btn">
+                </div>
+            </div>
+        </div>
+
+        <!-- منطقة العرض الرئيسية -->
+        <div id="noVNC_screen">
+            <canvas id="noVNC_canvas" width="0" height="0">
+                Canvas غير مدعوم.
+            </canvas>
+        </div>
+
+        <!-- شريط التحكم المبسط للجوال -->
+        <div id="noVNC_control_bar" style="display: none;">
+            <button class="mobile-control-btn" onclick="sendKey('ctrl+alt+del')">Ctrl+Alt+Del</button>
+            <button class="mobile-control-btn" onclick="toggleKeyboard()">لوحة المفاتيح</button>
+            <button class="mobile-control-btn" onclick="toggleFullscreen()">ملء الشاشة</button>
+            <button class="mobile-control-btn" onclick="disconnect()">قطع الاتصال</button>
+        </div>
+    </div>
+
+    <script>
+        // وظائف التحكم المبسطة
+        function sendKey(combo) {
+            // سيتم تنفيذ هذا من خلال noVNC API
+            console.log('Sending key combination:', combo);
+        }
+        
+        function toggleKeyboard() {
+            // تفعيل/إلغاء لوحة المفاتيح الافتراضية
+            const input = document.createElement('input');
+            input.style.position = 'fixed';
+            input.style.left = '-1000px';
+            document.body.appendChild(input);
+            input.focus();
+            setTimeout(() => document.body.removeChild(input), 100);
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        function disconnect() {
+            if (confirm('هل تريد قطع الاتصال؟')) {
+                location.reload();
+            }
+        }
+        
+        // إظهار شريط التحكم عند الاتصال
+        document.addEventListener('connect', function() {
+            document.getElementById('noVNC_control_bar').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>

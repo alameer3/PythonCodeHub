@@ -24,3 +24,6 @@ This project provides a remote desktop environment with VNC support, migrated fr
 - **Service Status**: 8/8 services operational
 - VNC remote desktop fully functional with password: 123456
 - CloudFlared provides secure external access via HTTPS tunnels
+- **Mobile Support Added**: Created mobile.html with touch-optimized interface
+- Touch controls enabled for smartphone and tablet usage
+- Responsive design with mobile-friendly controls and gestures

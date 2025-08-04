@@ -454,8 +454,9 @@ class DesktopEnvironment:
         if working_services >= 4:  # إذا كان نصف الخدمات يعمل على الأقل
             self.log("🌐 النظام جاهز للاستخدام!")
             self.log("🔗 الروابط:")
-            self.log("  💻 محلي: http://localhost:5000/vnc.html")
-            self.log("  🖥️ VNC: http://localhost:5000/vnc.html")
+            self.log("  💻 سطح المكتب العادي: http://localhost:5000/vnc.html")
+            self.log("  📱 وضع الهاتف المحمول: http://localhost:5000/mobile.html")
+            self.log("  🖥️ VNC مباشر: http://localhost:5000/vnc.html")
             
             # إبقاء النظام نشط
             self.log("🔁 [11/12] إبقاء النظام نشط...")
