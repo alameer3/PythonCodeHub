@@ -5,6 +5,25 @@ channel = "stable-25_05"
 packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs", "chromium", "nettools"]
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Desktop System"
+
+[[workflows.workflow]]
+name = "Desktop System"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+waitForPort = 8080
 
 [agent]
 expertMode = true
@@ -33,6 +52,10 @@ externalPort = 3003
 localPort = 5902
 externalPort = 9000
 exposeLocalhost = true
+
+[[ports]]
+localPort = 6080
+externalPort = 4200
 
 [[ports]]
 localPort = 8080
