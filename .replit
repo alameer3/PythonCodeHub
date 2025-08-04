@@ -61,3 +61,13 @@ localPort = 20241
 
 [[ports]]
 localPort = 20242
+
+[[ports]]
+localPort = 5900
+externalPort = 5900
+exposeLocalhost = true
+
+[[ports]]
+localPort = 6080
+externalPort = 6080
+exposeLocalhost = true
