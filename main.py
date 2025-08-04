@@ -348,7 +348,7 @@ class DesktopEnvironment:
             try:
                 subprocess.Popen([
                     "./cloudflared", "tunnel", 
-                    "--url", "http://localhost:6080",
+                    "--url", "http://localhost:5000",
                     "--no-autoupdate",
                     "--metrics", "localhost:0"
                 ], stdout=open("/tmp/cloudflared.log", "w"), stderr=subprocess.STDOUT)
@@ -454,8 +454,8 @@ class DesktopEnvironment:
         if working_services >= 4:  # إذا كان نصف الخدمات يعمل على الأقل
             self.log("🌐 النظام جاهز للاستخدام!")
             self.log("🔗 الروابط:")
-            self.log("  💻 محلي: http://localhost:8080")
-            self.log("  🖥️ VNC: http://localhost:6080/vnc.html")
+            self.log("  💻 محلي: http://localhost:5000/vnc.html")
+            self.log("  🖥️ VNC: http://localhost:5000/vnc.html")
             
             # إبقاء النظام نشط
             self.log("🔁 [11/12] إبقاء النظام نشط...")
