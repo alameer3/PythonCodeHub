@@ -21,7 +21,8 @@ This project provides a remote desktop environment with VNC support, migrated fr
 - Clean project structure preferred
 - Keep only essential files
 - Touch/mobile support for phone usage
-- Multiple interface options for different devices
+- **Single adaptive interface instead of multiple separate files**
+- Automatic device detection and optimization
 
 ## Recent Changes (August 2025)
 - **Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment
