@@ -200,6 +200,10 @@ class DesktopEnvironment:
         self.log("🔐 [5/12] تشغيل x11vnc...")
         
         try:
+            # قتل أي عمليات x11vnc سابقة
+            subprocess.run(["pkill", "-f", "x11vnc"], capture_output=True)
+            time.sleep(1)
+            
             # إعداد كلمة المرور أولاً
             self.setup_vnc_password()
             
@@ -242,6 +246,13 @@ class DesktopEnvironment:
     def start_websockify(self):
         """تشغيل websockify"""
         self.log("🌐 [6/12] تشغيل websockify...")
+        
+        # قتل أي عمليات websockify سابقة
+        try:
+            subprocess.run(["pkill", "-f", "websockify"], capture_output=True)
+            time.sleep(1)
+        except:
+            pass
         
         websockify_dir = "noVNC/utils/websockify"
         if os.path.exists(websockify_dir):
