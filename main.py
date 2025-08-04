@@ -218,6 +218,7 @@ class DesktopEnvironment:
                 "-forever", "-shared", 
                 "-noxdamage", "-noxfixes",
                 "-rfbport", "5900",
+                "-rfbaddr", "0.0.0.0",  # ربط بجميع عناوين IP
                 "-nap",  # تقليل استهلاك CPU
                 "-wait", "50",  # انتظار بسيط
                 "-defer", "1"  # تأجيل التحديثات
@@ -263,7 +264,7 @@ class DesktopEnvironment:
                 subprocess.Popen([
                     "python3", "-m", "websockify",
                     "--web", "../..",
-                    "6080", "127.0.0.1:5900"
+                    "0.0.0.0:6080", "0.0.0.0:5900"
                 ], cwd=websockify_dir, stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT)
                 
                 time.sleep(2)
