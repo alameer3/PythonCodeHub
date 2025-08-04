@@ -93,55 +93,57 @@
         import UI from "./app/ui.js";
         import * as Log from './core/util/logging.js';
 
-        let response;
-        let defaults = {};
-        let mandatory = {};
+        window.addEventListener('DOMContentLoaded', async function() {
+            let response;
+            let defaults = {};
+            let mandatory = {};
 
-        // تحميل الإعدادات الافتراضية
-        try {
-            response = await fetch('./defaults.json');
-            if (!response.ok) {
-                throw Error("" + response.status + " " + response.statusText);
+            // تحميل الإعدادات الافتراضية
+            try {
+                response = await fetch('./defaults.json');
+                if (!response.ok) {
+                    throw Error("" + response.status + " " + response.statusText);
+                }
+                defaults = await response.json();
+            } catch (err) {
+                Log.Error("Couldn't fetch defaults.json: " + err);
             }
-            defaults = await response.json();
-        } catch (err) {
-            Log.Error("Couldn't fetch defaults.json: " + err);
-        }
 
-        try {
-            response = await fetch('./mandatory.json');
-            if (!response.ok) {
-                throw Error("" + response.status + " " + response.statusText);
+            try {
+                response = await fetch('./mandatory.json');
+                if (!response.ok) {
+                    throw Error("" + response.status + " " + response.statusText);
+                }
+                mandatory = await response.json();
+            } catch (err) {
+                Log.Error("Couldn't fetch mandatory.json: " + err);
             }
-            mandatory = await response.json();
-        } catch (err) {
-            Log.Error("Couldn't fetch mandatory.json: " + err);
-        }
 
-        // إعدادات خاصة للجوال
-        const mobileDefaults = {
-            ...defaults,
-            viewOnly: false,
-            touchButton: 1,  // تفعيل اللمس
-            scaleViewport: true,  // تكبير تلقائي
-            resizeSession: false,
-            showDotCursor: false,
-            localCursor: true,
-            dragViewport: true,  // السحب لتحريك الشاشة
-            qualityLevel: 6,  // جودة متوسطة للسرعة
-            compressionLevel: 2,
-            bell: false,
-            clipboard: true
-        };
+            // إعدادات خاصة للجوال
+            const mobileDefaults = {
+                ...defaults,
+                view_only: false,
+                touch_button: 1,  // تفعيل اللمس
+                scale_viewport: true,  // تكبير تلقائي
+                resize_session: false,
+                show_dot_cursor: false,
+                local_cursor: true,
+                drag_viewport: true,  // السحب لتحريك الشاشة
+                quality_level: 6,  // جودة متوسطة للسرعة
+                compression_level: 2,
+                bell: false,
+                clipboard: true
+            };
 
-        // تشغيل واجهة noVNC مع الإعدادات المحسنة للجوال
-        UI.start(mobileDefaults, mandatory);
+            // تشغيل واجهة noVNC مع الإعدادات المحسنة للجوال
+            UI.start(mobileDefaults, mandatory);
 
-        // إضافة أحداث اللمس المخصصة
-        document.addEventListener('DOMContentLoaded', function() {
+            // إضافة أحداث اللمس المخصصة
             // منع التمرير الافتراضي
             document.body.addEventListener('touchmove', function(e) {
-                e.preventDefault();
+                if (e.target.closest('#noVNC_canvas')) {
+                    e.preventDefault();
+                }
             }, { passive: false });
             
             // منع التكبير المزدوج
@@ -149,7 +151,9 @@
             document.addEventListener('touchend', function(event) {
                 let now = (new Date()).getTime();
                 if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
+                    if (event.target.closest('#noVNC_canvas')) {
+                        event.preventDefault();
+                    }
                 }
                 lastTouchEnd = now;
             }, false);
