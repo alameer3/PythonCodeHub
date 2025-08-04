@@ -227,17 +227,27 @@ class DesktopEnvironment:
             time.sleep(3)
             
             # فحص إذا كان يعمل
+            # فحص المنفذ 5902 أولاً (المنفذ الافتراضي لـ x11vnc)
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                result = sock.connect_ex(('localhost', 5900))
+                result = sock.connect_ex(('localhost', 5902))
                 sock.close()
                 
                 if result == 0:
-                    self.log("✅ x11vnc يعمل على المنفذ 5900")
+                    self.log("✅ x11vnc يعمل على المنفذ 5902")
                     return True
                 else:
-                    self.log("❌ x11vnc لا يستمع على المنفذ 5900")
-                    return False
+                    # فحص المنفذ 5900 كبديل
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    result = sock.connect_ex(('localhost', 5900))
+                    sock.close()
+                    
+                    if result == 0:
+                        self.log("✅ x11vnc يعمل على المنفذ 5900")
+                        return True
+                    else:
+                        self.log("❌ x11vnc لا يعمل على أي منفذ")
+                        return False
             except:
                 self.log("❌ لا يمكن فحص x11vnc")
                 return False
@@ -264,7 +274,7 @@ class DesktopEnvironment:
                 subprocess.Popen([
                     "python3", "-m", "websockify",
                     "--web", "../..",
-                    "0.0.0.0:6080", "0.0.0.0:5900"
+                    "0.0.0.0:6080", "0.0.0.0:5902"
                 ], cwd=websockify_dir, stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT)
                 
                 time.sleep(2)
