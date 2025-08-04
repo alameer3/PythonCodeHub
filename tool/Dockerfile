@@ -7,7 +7,7 @@ RUN apt update && apt install -y tzdata && \
     ln -fs /usr/share/zoneinfo/Asia/Riyadh /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
 
-# 🛠️ تثبيت الأدوات الأساسية وسطح المكتب و VNC و noVNC و Firefox
+# 🛠️ تثبيت الأدوات الأساسية وسطح المكتب و VNC و noVNC
 RUN apt update && apt install -y \
     lxde \
     x11vnc \
@@ -16,13 +16,16 @@ RUN apt update && apt install -y \
     wget \
     python3 \
     python3-pip \
-    firefox \
     curl \
     net-tools \
     netcat \
-    # ✅ تم حذف novnc لمنع تعارض المسارات (سيتم تثبيته من git أدناه)
     tzdata \
     && apt clean
+
+# 🌐 تثبيت Google Chrome
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb && \
+    apt install -y /tmp/chrome.deb && \
+    rm /tmp/chrome.deb
 
 # 🔐 إعداد كلمة مرور VNC
 RUN mkdir -p /root/.vnc && \
@@ -52,9 +55,9 @@ RUN mkdir -p /tmp/.X11-unix && \
 COPY ./start.sh /start.sh
 RUN chmod +x /start.sh
 
-# ✅ إعداد تشغيل Firefox تلقائيًا مع سطح المكتب
+# ✅ إعداد تشغيل Chrome تلقائيًا مع سطح المكتب
 RUN mkdir -p /root/.config/lxsession/LXDE && \
-    echo "@firefox --no-sandbox" >> /root/.config/lxsession/LXDE/autostart
+    echo "@google-chrome --no-sandbox --disable-gpu" >> /root/.config/lxsession/LXDE/autostart
 
 # 🔥 بدء التشغيل
 CMD ["/start.sh"]

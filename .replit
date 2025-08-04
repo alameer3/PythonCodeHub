@@ -32,6 +32,14 @@ args = "Complete Tool System"
 task = "workflow.run"
 args = "Desktop Environment"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Original Tool System"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Proper Tool System"
+
 [[workflows.workflow]]
 name = "Python Best Practices Demo"
 author = "agent"
@@ -74,6 +82,24 @@ task = "shell.exec"
 args = "python main.py demo"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Original Tool System"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd tool && ./start.sh"
+waitForPort = 6080
+
+[[workflows.workflow]]
+name = "Proper Tool System"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_tool.py"
+waitForPort = 8080
+
 [agent]
 expertMode = true
 
@@ -92,6 +118,10 @@ externalPort = 3001
 [[ports]]
 localPort = 5003
 externalPort = 3002
+
+[[ports]]
+localPort = 5004
+externalPort = 3003
 
 [[ports]]
 localPort = 8080

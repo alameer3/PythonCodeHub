@@ -22,10 +22,21 @@ echo "🧠 [4/12] تشغيل LXDE ..."
 startlxde > /tmp/lxde.log 2>&1 &
 sleep 2
 
-# 🌐 [4.5/12] تشغيل Firefox تلقائيًا (احتياطيًا)
-echo "🌐 [4.5/12] تشغيل Firefox ..."
-firefox --no-sandbox > /tmp/firefox.log 2>&1 &
-sleep 2
+# 🌐 [4.5/12] تشغيل Google Chrome تلقائيًا
+echo "🌐 [4.5/12] تشغيل Google Chrome ..."
+google-chrome --no-sandbox --disable-gpu > /tmp/chrome.log 2>&1 &
+sleep 5
+if pgrep chrome > /dev/null; then
+    echo "✅ Chrome يعمل."
+else
+    echo "❌ Chrome لم يعمل! عرض السجل:"
+    cat /tmp/chrome.log
+fi
+
+# 🖥️ [4.6/12] تشغيل تطبيقات مرئية داخل سطح المكتب
+echo "📦 [4.6/12] تشغيل lxterminal داخل الجلسة ..."
+lxterminal > /tmp/lxterminal.log 2>&1 &
+sleep 1
 
 # 🔐 تشغيل x11vnc
 echo "🔐 [5/12] تشغيل x11vnc ..."
@@ -76,6 +87,3 @@ fi
 # 🔁 إبقاء الحاوية تعمل
 echo "🔁 [11/12] إبقاء الحاوية تعمل ..."
 tail -f /dev/null
-
-
-
