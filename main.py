@@ -210,7 +210,7 @@ class DesktopEnvironment:
             # الحصول على Display الحالي
             display = os.environ.get('DISPLAY', ':0')
             
-            # تشغيل x11vnc مع إعدادات بسيطة ومباشرة
+            # تشغيل x11vnc مع إجبار استخدام المنفذ 5900
             subprocess.Popen([
                 "x11vnc", 
                 "-display", display,
@@ -221,33 +221,24 @@ class DesktopEnvironment:
                 "-rfbaddr", "0.0.0.0",  # ربط بجميع عناوين IP
                 "-nap",  # تقليل استهلاك CPU
                 "-wait", "50",  # انتظار بسيط
-                "-defer", "1"  # تأجيل التحديثات
+                "-defer", "1",  # تأجيل التحديثات
+                "-autoport", "no"  # منع الاختيار التلقائي للمنفذ
             ], stdout=open("/tmp/x11vnc.log", "w"), stderr=subprocess.STDOUT)
             
             time.sleep(3)
             
-            # فحص إذا كان يعمل
-            # فحص المنفذ 5902 أولاً (المنفذ الافتراضي لـ x11vnc)
+            # فحص إذا كان يعمل على المنفذ 5900
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                result = sock.connect_ex(('localhost', 5902))
+                result = sock.connect_ex(('localhost', 5900))
                 sock.close()
                 
                 if result == 0:
-                    self.log("✅ x11vnc يعمل على المنفذ 5902")
+                    self.log("✅ x11vnc يعمل على المنفذ 5900")
                     return True
                 else:
-                    # فحص المنفذ 5900 كبديل
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    result = sock.connect_ex(('localhost', 5900))
-                    sock.close()
-                    
-                    if result == 0:
-                        self.log("✅ x11vnc يعمل على المنفذ 5900")
-                        return True
-                    else:
-                        self.log("❌ x11vnc لا يعمل على أي منفذ")
-                        return False
+                    self.log("❌ x11vnc لا يعمل على المنفذ 5900")
+                    return False
             except:
                 self.log("❌ لا يمكن فحص x11vnc")
                 return False
@@ -274,7 +265,7 @@ class DesktopEnvironment:
                 subprocess.Popen([
                     "python3", "-m", "websockify",
                     "--web", "../..",
-                    "0.0.0.0:6080", "0.0.0.0:5902"
+                    "0.0.0.0:6080", "0.0.0.0:5900"
                 ], cwd=websockify_dir, stdout=open("/tmp/novnc.log", "w"), stderr=subprocess.STDOUT)
                 
                 time.sleep(2)
