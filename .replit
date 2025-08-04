@@ -58,7 +58,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 run_tool.py"
+args = "python3 replit_desktop.py"
 waitForPort = 8080
 
 [agent]
@@ -79,5 +79,5 @@ exposeLocalhost = true
 
 [[ports]]
 localPort = 20242
-externalPort = 9000
+externalPort = 8081
 exposeLocalhost = true
