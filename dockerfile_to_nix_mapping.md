@@ -35,7 +35,8 @@
 - `git` - ✅ متاح  
 - `wget` - ✅ متاح
 - `curl` - ✅ متاح
-- `firefox` - ✅ متاح
+- `chromium` - ✅ متاح (بدلاً من Firefox)
+- `fluxbox` - ✅ متاح
 - `nodejs` - ✅ متاح
 
 ### الحزم غير المتاحة في Nix:

@@ -2,7 +2,7 @@ modules = ["nodejs-20", "python-3.11", "web", "bash"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs"]
+packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs", "chromium"]
 
 [workflows]
 runButton = "Project"

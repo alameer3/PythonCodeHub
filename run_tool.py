@@ -29,8 +29,8 @@ class ToolRunner:
             'git': True, 
             'curl': True,
             'fluxbox': True,
+            'chromium': True,
             'wget': False,
-            'firefox': False,
             'tigervnc': False,
             'x11vnc': False,
             'nodejs': False
@@ -294,7 +294,7 @@ if __name__ == "__main__":
                     <li>✅ Git <span>متاح</span></li>
                     <li>✅ Curl <span>متاح</span></li>
                     <li>✅ Fluxbox <span>متاح</span></li>
-                    <li>🔄 Firefox <span>محاكي</span></li>
+                    <li>✅ Chrome <span>متاح</span></li>
                     <li>🔄 VNC Tools <span>محاكي</span></li>
                 </ul>
             </div>
