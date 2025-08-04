@@ -1,14 +1,23 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="noVNC_loading">
 <head>
     <meta charset="UTF-8">
     <title>سطح المكتب البعيد - واجهة ذكية</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    
+    <link rel="icon" type="image/x-icon" href="app/images/icons/novnc.ico">
+    <meta name="theme-color" content="#313131">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="stylesheet" href="app/styles/constants.css">
     <link rel="stylesheet" href="app/styles/base.css">
     <link rel="stylesheet" href="app/styles/input.css">
+    
+    <link rel="preload" as="image" href="app/images/info.svg">
+    <link rel="preload" as="image" href="app/images/error.svg">
+    <link rel="preload" as="image" href="app/images/warning.svg">
     
     <style>
         * {
@@ -374,8 +383,21 @@
             </div>
         </div>
         
-        <!-- منطقة العرض -->
-        <div id="noVNC_container" class="hidden">
+        <!-- منطقة العرض noVNC الكاملة -->
+        <div id="noVNC_container">
+            <!-- Hidden noVNC controls that the custom dialog will populate -->
+            <div style="display: none;">
+                <input id="noVNC_setting_host" type="text">
+                <input id="noVNC_setting_port" type="number">
+                <input id="noVNC_setting_password" type="password">
+                <input id="noVNC_setting_encrypt" type="checkbox">
+                <input id="noVNC_connect_button" type="button" value="Connect">
+            </div>
+            
+            <div id="noVNC_fallback_error" class="noVNC_center" style="display: none;">
+                <div>متصفحك لا يدعم noVNC. يرجى استخدام متصفح حديث.</div>
+            </div>
+            
             <div id="noVNC_screen">
                 <canvas id="noVNC_canvas" width="0" height="0">
                     متصفحك لا يدعم Canvas
@@ -387,8 +409,8 @@
     <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
     <script type="module">
         import UI from "./app/ui.js";
+        import * as Log from './core/util/logging.js';
         
-        let vnc;
         let deviceType = 'unknown';
         let touchSupported = false;
         
@@ -480,33 +502,27 @@
             updateStatus('🔄 جاري الاتصال...');
             
             try {
+                // تطبيق الإعدادات على UI
+                document.getElementById('noVNC_setting_host').value = host;
+                document.getElementById('noVNC_setting_port').value = port;
+                document.getElementById('noVNC_setting_password').value = password;
+                document.getElementById('noVNC_setting_encrypt').checked = encrypt;
+                
+                // إخفاء نافذة الاتصال
                 document.getElementById('connectDialog').classList.add('hidden');
-                document.getElementById('noVNC_container').classList.remove('hidden');
                 
-                // إعدادات مخصصة حسب نوع الجهاز
-                const settings = {
-                    host: host,
-                    port: port,
-                    password: password,
-                    encrypt: encrypt,
-                    view_only: false,
-                    scale_viewport: deviceType !== 'desktop',
-                    drag_viewport: touchSupported,
-                    local_cursor: true,
-                    show_dot_cursor: !touchSupported,
-                    touch_button: touchSupported ? 1 : 0,
-                    quality_level: deviceType === 'mobile' ? 4 : 6,
-                    compression_level: deviceType === 'mobile' ? 3 : 2
-                };
+                // إعداد URL للاتصال
+                const protocol = encrypt ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${host}:${port}/websockify`;
                 
-                UI.start(settings, {});
-                updateStatus('✅ متصل بنجاح');
+                // الاتصال باستخدام noVNC UI
+                UI.connect(wsUrl, password);
+                updateStatus('✅ جاري الاتصال...');
                 
             } catch (error) {
-                updateStatus('❌ خطأ في الاتصال');
+                updateStatus('❌ خطأ في الاتصال: ' + error.message);
                 console.error('Connection error:', error);
                 document.getElementById('connectDialog').classList.remove('hidden');
-                document.getElementById('noVNC_container').classList.add('hidden');
             }
         }
         
@@ -558,10 +574,35 @@
         window.connectVNC = connectVNC;
         
         // بدء التشغيل
-        window.addEventListener('load', function() {
+        window.addEventListener('load', async function() {
             detectDevice();
             adaptInterface();
             autoDetect();
+            
+            // تحميل الإعدادات الافتراضية
+            let defaults = {};
+            let mandatory = {};
+            
+            try {
+                const response = await fetch('./defaults.json');
+                if (response.ok) {
+                    defaults = await response.json();
+                }
+            } catch (err) {
+                console.log("Couldn't fetch defaults.json: " + err);
+            }
+            
+            try {
+                const response = await fetch('./mandatory.json');
+                if (response.ok) {
+                    mandatory = await response.json();
+                }
+            } catch (err) {
+                console.log("Couldn't fetch mandatory.json: " + err);
+            }
+            
+            // بدء noVNC مع الإعدادات
+            UI.start(defaults, mandatory);
             updateStatus(`🎯 جاهز للاستخدام على ${detectDevice()}`);
         });
         
