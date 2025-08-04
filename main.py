@@ -455,9 +455,9 @@ class DesktopEnvironment:
             self.log("🌐 النظام جاهز للاستخدام!")
             self.log("🔗 الروابط:")
             self.log("  💻 سطح المكتب العادي: http://localhost:5000/vnc.html")
-            self.log("  📱 وضع اللمس (مُحسن): http://localhost:5000/touch.html")
+            self.log("  📱 الهاتف (كشف تلقائي): http://localhost:5000/mobile-auto.html")
+            self.log("  🖱️ وضع اللمس: http://localhost:5000/touch.html")
             self.log("  🇸🇦 واجهة عربية كاملة: http://localhost:5000/arabic.html")
-            self.log("  🖥️ VNC مباشر: http://localhost:5000/vnc.html")
             
             # إبقاء النظام نشط
             self.log("🔁 [11/12] إبقاء النظام نشط...")

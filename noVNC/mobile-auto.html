@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>سطح المكتب - الهاتف المحمول</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <link rel="stylesheet" href="app/styles/constants.css">
+    <link rel="stylesheet" href="app/styles/base.css">
+    <link rel="stylesheet" href="app/styles/input.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            background: #2c3e50;
+            overflow: hidden;
+        }
+        
+        .mobile-header {
+            background: #34495e;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .mobile-content {
+            margin-top: 50px;
+            height: calc(100vh - 50px);
+            position: relative;
+        }
+        
+        #noVNC_container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #noVNC_canvas {
+            touch-action: none;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .mobile-controls {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+        
+        .mobile-btn {
+            background: rgba(52, 73, 94, 0.9);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .status-info {
+            position: fixed;
+            top: 55px;
+            right: 10px;
+            background: rgba(39, 174, 96, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        
+        /* نافذة الاتصال المحسنة */
+        .connect-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            direction: rtl;
+            text-align: right;
+            min-width: 280px;
+            max-width: 90vw;
+        }
+        
+        .connect-dialog h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .connect-dialog label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .connect-dialog input[type="text"],
+        .connect-dialog input[type="number"],
+        .connect-dialog input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            direction: ltr;
+            box-sizing: border-box;
+        }
+        
+        .connect-dialog button {
+            width: 100%;
+            padding: 12px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .auto-detect {
+            background: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mobile-header">
+        📱 سطح المكتب البعيد - وضع الهاتف
+    </div>
+    
+    <div class="mobile-content">
+        <div class="status-info" id="statusInfo">جاري التحضير...</div>
+        
+        <div class="mobile-controls">
+            <button class="mobile-btn" onclick="toggleFullscreen()">شاشة كاملة</button>
+            <button class="mobile-btn" onclick="showKeyboard()">لوحة مفاتيح</button>
+            <button class="mobile-btn" onclick="reconnect()">إعادة اتصال</button>
+        </div>
+        
+        <!-- نافذة الاتصال -->
+        <div id="connectDialog" class="connect-dialog">
+            <h3>🔗 الاتصال بسطح المكتب</h3>
+            
+            <button onclick="autoDetect()" class="auto-detect">🔍 اكتشاف تلقائي للإعدادات</button>
+            
+            <div>
+                <label>🖥️ الخادم:</label>
+                <input id="hostInput" type="text" placeholder="يتم التحديد تلقائياً">
+            </div>
+            
+            <div>
+                <label>🔌 المنفذ:</label>
+                <input id="portInput" type="number" placeholder="يتم التحديد تلقائياً">
+            </div>
+            
+            <div>
+                <label>🔐 كلمة المرور:</label>
+                <input id="passwordInput" type="password" value="123456">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>
+                    <input id="encryptInput" type="checkbox"> 🔒 استخدام التشفير (HTTPS)
+                </label>
+            </div>
+            
+            <button onclick="connectVNC()">🚀 اتصال</button>
+        </div>
+        
+        <!-- منطقة العرض -->
+        <div id="noVNC_container" class="hidden">
+            <div id="noVNC_screen">
+                <canvas id="noVNC_canvas" width="0" height="0">
+                    متصفحك لا يدعم Canvas
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" crossorigin="anonymous" src="app/error-handler.js"></script>
+    <script type="module">
+        import UI from "./app/ui.js";
+        
+        let vnc;
+        
+        // تحديث رسالة الحالة
+        function updateStatus(message) {
+            document.getElementById('statusInfo').textContent = message;
+        }
+        
+        // الكشف التلقائي للإعدادات
+        function autoDetect() {
+            const currentHost = window.location.hostname;
+            const currentProtocol = window.location.protocol;
+            
+            const hostInput = document.getElementById('hostInput');
+            const portInput = document.getElementById('portInput');
+            const encryptInput = document.getElementById('encryptInput');
+            
+            if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+                // اتصال محلي
+                hostInput.value = 'localhost';
+                portInput.value = '5000';
+                encryptInput.checked = false;
+                updateStatus('تم اكتشاف: اتصال محلي');
+            } else {
+                // اتصال خارجي عبر CloudFlared
+                hostInput.value = currentHost;
+                portInput.value = '443';
+                encryptInput.checked = true;
+                updateStatus('تم اكتشاف: اتصال خارجي مشفر');
+            }
+        }
+        
+        // الاتصال بـ VNC
+        function connectVNC() {
+            const host = document.getElementById('hostInput').value;
+            const port = document.getElementById('portInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const encrypt = document.getElementById('encryptInput').checked;
+            
+            if (!host || !port) {
+                alert('يرجى اكتشاف الإعدادات أولاً أو إدخالها يدوياً');
+                return;
+            }
+            
+            updateStatus('جاري الاتصال...');
+            
+            try {
+                // إخفاء نافذة الاتصال وإظهار الشاشة
+                document.getElementById('connectDialog').classList.add('hidden');
+                document.getElementById('noVNC_container').classList.remove('hidden');
+                
+                // إعدادات noVNC
+                const settings = {
+                    host: host,
+                    port: port,
+                    password: password,
+                    encrypt: encrypt,
+                    view_only: false,
+                    scale_viewport: true,
+                    drag_viewport: true,
+                    local_cursor: true,
+                    show_dot_cursor: false,
+                    touch_button: 1,
+                    quality_level: 6,
+                    compression_level: 2
+                };
+                
+                // بدء noVNC
+                UI.start(settings, {});
+                updateStatus('متصل ✅');
+                
+            } catch (error) {
+                updateStatus('خطأ في الاتصال ❌');
+                console.error('Connection error:', error);
+                // إعادة إظهار نافذة الاتصال
+                document.getElementById('connectDialog').classList.remove('hidden');
+                document.getElementById('noVNC_container').classList.add('hidden');
+            }
+        }
+        
+        // الدوال المساعدة
+        window.toggleFullscreen = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                updateStatus('وضع الشاشة الكاملة');
+            } else {
+                document.exitFullscreen();
+                updateStatus('الخروج من الشاشة الكاملة');
+            }
+        };
+        
+        window.showKeyboard = function() {
+            const input = document.createElement('input');
+            input.style.position = 'fixed';
+            input.style.left = '-1000px';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.focus();
+            setTimeout(() => document.body.removeChild(input), 100);
+            updateStatus('تم تفعيل لوحة المفاتيح');
+        };
+        
+        window.reconnect = function() {
+            updateStatus('جاري إعادة الاتصال...');
+            location.reload();
+        };
+        
+        window.autoDetect = autoDetect;
+        window.connectVNC = connectVNC;
+        
+        // بدء التشغيل
+        window.addEventListener('load', function() {
+            autoDetect();
+            updateStatus('جاهز - اضغط على الاكتشاف التلقائي');
+        });
+    </script>
+</body>
+</html>
