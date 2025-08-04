@@ -210,7 +210,7 @@ class DesktopEnvironment:
             # الحصول على Display الحالي
             display = os.environ.get('DISPLAY', ':0')
             
-            # تشغيل x11vnc مع إعدادات محسنة
+            # تشغيل x11vnc مع إعدادات بسيطة ومباشرة
             subprocess.Popen([
                 "x11vnc", 
                 "-display", display,
@@ -218,7 +218,9 @@ class DesktopEnvironment:
                 "-forever", "-shared", 
                 "-noxdamage", "-noxfixes",
                 "-rfbport", "5900",
-                "-create"  # إنشاء virtual display إذا لم يكن موجود
+                "-nap",  # تقليل استهلاك CPU
+                "-wait", "50",  # انتظار بسيط
+                "-defer", "1"  # تأجيل التحديثات
             ], stdout=open("/tmp/x11vnc.log", "w"), stderr=subprocess.STDOUT)
             
             time.sleep(3)
