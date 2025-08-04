@@ -488,7 +488,7 @@
         }
         
         // الاتصال بـ VNC
-        function connectVNC() {
+        async function connectVNC() {
             const host = document.getElementById('hostInput').value;
             const port = document.getElementById('portInput').value;
             const password = document.getElementById('passwordInput').value;
@@ -505,27 +505,44 @@
                 // إخفاء نافذة الاتصال
                 document.getElementById('connectDialog').classList.add('hidden');
                 
-                // إعداد الإعدادات للاتصال
-                const connectionSettings = {
-                    defaults: {
-                        host: host,
-                        port: port,
-                        password: password,
-                        encrypt: encrypt,
-                        view_only: false,
-                        scale_viewport: deviceType !== 'desktop',
-                        drag_viewport: touchSupported,
-                        local_cursor: true,
-                        show_dot_cursor: !touchSupported,
-                        touch_button: touchSupported ? 1 : 0,
-                        quality_level: deviceType === 'mobile' ? 4 : 6,
-                        compression_level: deviceType === 'mobile' ? 3 : 2
-                    },
-                    mandatory: {}
-                };
+                // تحميل الإعدادات الافتراضية
+                let defaults = {};
+                let mandatory = {};
                 
-                // بدء noVNC بالطريقة الصحيحة
-                UI.start({ settings: connectionSettings });
+                try {
+                    const response = await fetch('./defaults.json');
+                    if (response.ok) {
+                        defaults = await response.json();
+                    }
+                } catch (err) {
+                    console.log("Couldn't fetch defaults.json: " + err);
+                }
+                
+                try {
+                    const response = await fetch('./mandatory.json');
+                    if (response.ok) {
+                        mandatory = await response.json();
+                    }
+                } catch (err) {
+                    console.log("Couldn't fetch mandatory.json: " + err);
+                }
+                
+                // دمج الإعدادات المخصصة
+                defaults.host = host;
+                defaults.port = port;
+                defaults.password = password;
+                defaults.encrypt = encrypt;
+                defaults.view_only = false;
+                defaults.scale_viewport = deviceType !== 'desktop';
+                defaults.drag_viewport = touchSupported;
+                defaults.local_cursor = true;
+                defaults.show_dot_cursor = !touchSupported;
+                defaults.touch_button = touchSupported ? 1 : 0;
+                defaults.quality_level = deviceType === 'mobile' ? 4 : 6;
+                defaults.compression_level = deviceType === 'mobile' ? 3 : 2;
+                
+                // بدء noVNC
+                UI.start({ settings: { defaults: defaults, mandatory: mandatory } });
                 updateStatus('✅ جاري الاتصال...');
                 
             } catch (error) {
@@ -587,31 +604,6 @@
             detectDevice();
             adaptInterface();
             autoDetect();
-            
-            // تحميل الإعدادات الافتراضية
-            let defaults = {};
-            let mandatory = {};
-            
-            try {
-                const response = await fetch('./defaults.json');
-                if (response.ok) {
-                    defaults = await response.json();
-                }
-            } catch (err) {
-                console.log("Couldn't fetch defaults.json: " + err);
-            }
-            
-            try {
-                const response = await fetch('./mandatory.json');
-                if (response.ok) {
-                    mandatory = await response.json();
-                }
-            } catch (err) {
-                console.log("Couldn't fetch mandatory.json: " + err);
-            }
-            
-            // بدء noVNC مع الإعدادات الافتراضية
-            UI.start({ settings: { defaults: defaults, mandatory: mandatory } });
             updateStatus(`🎯 جاهز للاستخدام على ${detectDevice()}`);
         });
         
