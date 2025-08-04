@@ -2,7 +2,7 @@ modules = ["nodejs-20", "python-3.11", "web", "bash"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["xvfb-run", "x11vnc", "netcat"]
+packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git"]
 
 [workflows]
 runButton = "Project"
@@ -26,7 +26,7 @@ args = "My Code Runner"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Tool Direct Runner"
+args = "Complete Tool System"
 
 [[workflows.workflow]]
 name = "Python Best Practices Demo"
@@ -53,12 +53,12 @@ task = "shell.exec"
 args = "python my_code.py"
 
 [[workflows.workflow]]
-name = "Tool Direct Runner"
+name = "Complete Tool System"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 simple_tool_executor.py"
+args = "python3 complete_tool_installer.py"
 waitForPort = 8080
 
 [agent]
@@ -71,3 +71,13 @@ externalPort = 5000
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[[ports]]
+localPort = 20241
+externalPort = 8008
+exposeLocalhost = true
+
+[[ports]]
+localPort = 20242
+externalPort = 8099
+exposeLocalhost = true
