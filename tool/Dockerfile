@@ -24,12 +24,6 @@ RUN apt update && apt install -y \
     tzdata \
     && apt clean
 
-# 🦊 تثبيت Firefox يدويًا بدون Snap
-RUN apt remove -y firefox || true && \
-    wget -O /tmp/firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=ar" && \
-    tar -xjf /tmp/firefox.tar.bz2 -C /opt/ && \
-    ln -s /opt/firefox/firefox /usr/bin/firefox
-
 # 🔐 إعداد كلمة مرور VNC
 RUN mkdir -p /root/.vnc && \
     x11vnc -storepasswd 123456 /root/.vnc/passwd
@@ -58,10 +52,9 @@ RUN mkdir -p /tmp/.X11-unix && \
 COPY ./start.sh /start.sh
 RUN chmod +x /start.sh
 
-# ✅ إعداد autostart لتشغيل Firefox تلقائيًا مع سطح المكتب (داخل جلسة LXDE)
+# ✅ إعداد تشغيل Firefox تلقائيًا مع سطح المكتب
 RUN mkdir -p /root/.config/lxsession/LXDE && \
-    echo "@firefox --no-sandbox --setDefaultBrowser" >> /root/.config/lxsession/LXDE/autostart && \
-    echo "@lxterminal" >> /root/.config/lxsession/LXDE/autostart
+    echo "@firefox --no-sandbox" >> /root/.config/lxsession/LXDE/autostart
 
 # 🔥 بدء التشغيل
 CMD ["/start.sh"]

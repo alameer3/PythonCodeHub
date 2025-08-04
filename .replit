@@ -2,7 +2,7 @@ modules = ["nodejs-20", "python-3.11", "web", "bash"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git"]
+packages = ["xvfb-run", "x11vnc", "netcat", "firefox", "wget", "curl", "git", "python3", "tigervnc", "fluxbox", "nodejs"]
 
 [workflows]
 runButton = "Project"
@@ -58,7 +58,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 complete_tool_installer.py"
+args = "python3 run_tool.py"
 waitForPort = 8080
 
 [agent]
@@ -79,5 +79,5 @@ exposeLocalhost = true
 
 [[ports]]
 localPort = 20242
-externalPort = 8099
+externalPort = 9000
 exposeLocalhost = true
