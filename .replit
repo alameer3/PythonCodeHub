@@ -2,9 +2,31 @@ modules = ["nodejs-20", "web", "bash", "python-3.11"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["chromium", "curl", "firefox", "fluxbox", "git", "netcat", "nettools", "nodejs", "python3", "tigervnc", "wget", "x11vnc", "xorg.xorgserver", "xvfb-run"]
+packages = ["chromium", "cmake", "curl", "firefox", "fluxbox", "gcc", "git", "glib", "gnumake", "meson", "netcat", "nettools", "ninja", "nodejs", "pkg-config", "python3", "tigervnc", "wget", "x11vnc", "xorg.xorgserver", "xvfb-run"]
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Trinity Desktop System"
+
+[[workflows.workflow]]
+name = "Trinity Desktop System"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 trinity_desktop_system.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [agent]
 expertMode = true

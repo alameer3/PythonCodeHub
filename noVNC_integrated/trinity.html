@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Trinity Desktop System - النظام المتكامل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .service-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .service-description {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 15px;
+        }
+        .action-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .vnc-frame {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background: #2ecc71; }
+        .status-offline { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Trinity Desktop System</h1>
+            <p>النظام المتكامل للمحاكاة وسطح المكتب البعيد</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title">
+                    <span class="status-indicator status-online"></span>
+                    🎮 Trinity Emulator
+                </div>
+                <div class="service-description">
+                    محاكي Android عالي الأداء مع تقنية Graphics Projection
+                </div>
+                <a href="/trinity/start" class="action-btn">🚀 بدء المحاكي</a>
+                <a href="/trinity/status" class="action-btn">📊 حالة النظام</a>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title">
+                    <span class="status-indicator status-online"></span>
+                    🖥️ Remote Desktop
+                </div>
+                <div class="service-description">
+                    نظام سطح المكتب البعيد مع دعم VNC, RDP, SPICE
+                </div>
+                <a href="/vnc.html" class="action-btn">💻 VNC Client</a>
+                <a href="/touch.html" class="action-btn">📱 Touch Interface</a>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title">
+                    <span class="status-indicator status-online"></span>
+                    🔧 Development Tools
+                </div>
+                <div class="service-description">
+                    أدوات التطوير وإدارة النظام
+                </div>
+                <a href="/adb/connect" class="action-btn">🔌 ADB Connection</a>
+                <a href="/logs" class="action-btn">📋 System Logs</a>
+            </div>
+        </div>
+        
+        <div id="vnc-container">
+            <h2>🌐 Remote Desktop Access</h2>
+            <iframe src="/vnc.html?autoconnect=true&resize=scale" class="vnc-frame"></iframe>
+        </div>
+        
+        <div class="status-section">
+            <h3>⚡ System Status</h3>
+            <div id="system-status">جاري تحديث الحالة...</div>
+        </div>
+    </div>
+    
+    <script>
+        // تحديث حالة النظام
+        function updateSystemStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('system-status').innerHTML = 
+                        'Trinity: ' + (data.trinity ? '✅ Running' : '❌ Offline') + '<br>' +
+                        'VNC: ' + (data.vnc ? '✅ Connected' : '❌ Disconnected') + '<br>' +
+                        'ADB: ' + (data.adb ? '✅ Ready' : '❌ Not Ready');
+                })
+                .catch(error => {
+                    document.getElementById('system-status').innerHTML = '❌ Status Update Failed';
+                });
+        }
+        
+        // تحديث كل 5 ثواني
+        setInterval(updateSystemStatus, 5000);
+        updateSystemStatus();
+    </script>
+</body>
+</html>

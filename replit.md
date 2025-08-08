@@ -1,10 +1,12 @@
-# Trinity Emulator Project
+# Trinity Desktop System Project
 
 ## Overview
 
-Trinity is a high-performance Android emulator that utilizes graphics projection technology to achieve better compatibility, security, and efficiency compared to traditional emulators. The project includes both the main Trinity emulator and remote desktop client applications (bVNC, aRDP, aSPICE, and Opaque) for Android devices.
+Trinity Desktop System هو نظام متكامل يجمع بين:
+- **TrinityEmulator**: محاكي Android عالي الأداء مبني على QEMU مع تقنية Graphics Projection Space
+- **Remote Desktop Clients**: مجموعة من عملاء سطح المكتب البعيد لـ Android (bVNC, aRDP, aSPICE, Opaque)
 
-The emulator runs Android-x86 guest OS on Windows-x64 Intel machines with optional NVIDIA GPU acceleration. It supports both volatile "live boot" mode and persistent installation mode, providing a complete Android environment with Google Play Store access through OpenGApps integration.
+النظام يوفر بيئة محاكاة شاملة مع إمكانية الوصول البعيد عبر واجهات VNC متقدمة.
 
 ## User Preferences
 
@@ -12,54 +14,84 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Emulation Architecture
-- **Host Platform**: Windows-x64 on Intel architecture with optional NVIDIA GPU support
-- **Guest OS**: Android-x86 with OpenGApps integration
-- **Virtualization Backend**: Intel HAXM or Windows Hyper-V for CPU virtualization
-- **Graphics**: Novel graphics projection space technology for efficient rendering
-- **Memory Management**: Supports memory over-commit without requiring full guest RAM pinning
+### Trinity Emulator Core
+- **Base**: QEMU 5.0 مع تعديلات مخصصة
+- **Graphics Projection Space**: تقنية جديدة للرسوميات عالية الأداء
+- **Guest OS**: Android-x86 مع دعم OpenGApps
+- **Target Architecture**: x86_64-softmmu
+- **Virtualization**: KVM acceleration when available
 
-### Remote Desktop Clients
-- **Multi-Protocol Support**: VNC, RDP, SPICE, and oVirt/RHEV/Proxmox protocols
-- **Cross-Platform**: Android applications with both free and pro versions
-- **Backend Integration**: Supports hardware RDMA devices and Soft-RoCE (rxe) interfaces
+### Remote Desktop Integration  
+- **VNC Server**: x11vnc على المنفذ 5900
+- **WebSocket Bridge**: websockify على المنفذ 5000
+- **Web Interface**: noVNC متكامل مع واجهات مخصصة
+- **Password**: trinity123 للوصول الآمن
 
-### QEMU Integration
-The project includes QEMU emulation components with:
-- **COLO (COarse-grained LOck-stepping)**: High availability through primary/secondary VM replication
-- **Advanced Features**: RDMA live migration, memory hotplug, throttling, and replay functionality
-- **Block Device Management**: qcow2 format support with L2/refcount caching
-- **Hardware Emulation**: Support for various device types including USB, PCI Express, audio, and network interfaces
-
-### Storage and Memory
-- **Volatile Mode**: 8GB storage limit, data erased on reboot
-- **Persistent Mode**: Full installation with permanent storage
-- **Memory Backend**: File-based and RAM-based backends with configurable caching
-- **Hot-plug Support**: Runtime device addition/removal capabilities
-
-### Network and Connectivity
-- **ADB Integration**: Android Debug Bridge connectivity for development
-- **Network Emulation**: Various network adapter emulations (e1000, virtio-net, etc.)
-- **Remote Access**: Multiple remote desktop protocols for cross-platform access
+### Key Components
+- **Data Teleporting Module** (`hw/direct-express`): نقل البيانات بين Guest والHost
+- **Host Rendering Engine** (`hw/express-gpu`): محرك الرسوميات في الـ Host
+- **Multi-Protocol Support**: VNC, RDP, SPICE protocols
+- **Mobile Optimization**: واجهات محسنة للأجهزة المحمولة
 
 ## External Dependencies
 
-### Hardware Requirements
-- 4-core Intel CPU with VT support
-- 8GB RAM minimum
-- 128GB storage
-- 1920x1080 display
-- Optional: NVIDIA GPU with driver version 497.09+
+### Build Requirements
+- **gcc**: مترجم C/C++
+- **make**: أدوات البناء
+- **cmake**: نظام البناء المتقدم
+- **pkg-config**: إدارة المكتبات
+- **glib**: مكتبة النظام الأساسية
+- **ninja/meson**: أدوات البناء السريعة
 
-### Software Dependencies
-- **Windows Virtualization**: Intel HAXM v7.6.5 or Windows Hyper-V
-- **Android Components**: Android-x86 guest OS with OpenGApps
-- **Development Libraries**: NSS for cryptographic functions, librdmacm and libibverbs for RDMA support
-- **Build Tools**: Standard development toolchain for QEMU compilation
+### Runtime Dependencies
+- **X11**: نظام النوافذ
+- **VNC**: خادم سطح المكتب البعيد
+- **WebSocket**: جسر الشبكة للواجبات
+- **Python**: websockify وأدوات النظام
 
-### Third-Party Integrations
-- **OpenGApps**: Google services integration for Android guest
-- **NVIDIA Drivers**: Optional GPU acceleration support
-- **Intel Technologies**: HAXM virtualization and VT support
-- **Network Protocols**: SocketCAN for automotive applications, various remote desktop protocols
-- **Storage Formats**: qcow2, raw images, and various block device backends
+### Hardware Requirements (Trinity)
+- **CPU**: 4-core Intel مع دعم VT
+- **Memory**: 8GB RAM minimum
+- **Storage**: 128GB available space
+- **Display**: 1920x1080 resolution
+- **GPU**: NVIDIA dedicated GPU (optional, driver 497.09+)
+
+## Recent Changes (August 2025)
+
+- **Project Integration**: دمج TrinityEmulator مع remote-desktop-clients
+- **Unified Interface**: واجهة موحدة للوصول لجميع الخدمات
+- **VNC Enhancement**: تحسين نظام VNC مع دعم كلمة مرور مخصصة
+- **Build System**: إعداد نظام البناء التلقائي لـ Trinity
+- **Web Dashboard**: لوحة تحكم ويب شاملة للنظام
+- **Service Monitoring**: مراقبة حالة الخدمات في الوقت الفعلي
+- **Multi-Display Support**: دعم شاشات متعددة للمحاكي والسطح البعيد
+
+## Service Configuration
+
+### Port Allocation
+- **5900**: VNC Server (سطح المكتب الرئيسي)
+- **5000**: WebSocket/noVNC (الواجهة الويب)
+- **5902**: Trinity Emulator VNC (المحاكي)
+- **5555**: ADB Connection (Android Debug Bridge)
+- **8080**: Trinity GUI (واجهة Trinity الأصلية)
+
+### Access Methods
+- **Web Interface**: http://localhost:5000/trinity.html
+- **Standard VNC**: http://localhost:5000/vnc.html
+- **Touch Interface**: http://localhost:5000/touch.html
+- **Trinity Direct**: VNC Client → localhost:5902
+
+## Development Notes
+
+- Trinity يتطلب environment خاص للـ Windows ولكن يمكن تشغيل الـ build system على Linux
+- النظام يدعم التشغيل على Replit مع تحسينات خاصة للبيئة السحابية
+- remote-desktop-clients يوفر Android clients متقدمة للاستخدام مع النظام
+- Build من المصدر يتطلب وقت طويل (10+ دقائق) لذا يفضل استخدام binaries جاهزة عند الإمكان
+
+## Integration Strategy
+
+النظام مصمم ليكون نقطة انطلاق لتطوير حلول محاكاة متقدمة تجمع بين:
+1. **High-Performance Emulation** (Trinity)
+2. **Remote Access Capabilities** (VNC/RDP/SPICE)
+3. **Mobile-First Design** (Android clients)
+4. **Web-Based Management** (Unified dashboard)
