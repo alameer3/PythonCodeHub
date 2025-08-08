@@ -2,7 +2,7 @@ modules = ["c-clang14", "java-graalvm22.3", "cpp-clang14", "bash", "python-3.11"
 
 [nix]
 channel = "stable-25_05"
-packages = ["chromium", "cmake", "curl", "firefox", "fluxbox", "gcc", "git", "glib", "gnumake", "meson", "netcat", "nettools", "ninja", "nodejs", "pkg-config", "python3", "tigervnc", "wget", "x11vnc", "xorg.xorgserver", "xvfb-run", "xorg.xvfb", "nodejs_20"]
+packages = ["chromium", "cmake", "curl", "firefox", "fluxbox", "gcc", "git", "glib", "gnumake", "meson", "netcat", "nettools", "ninja", "nodejs", "pkg-config", "python3", "tigervnc", "wget", "x11vnc", "xorg.xorgserver", "xvfb-run", "xorg.xvfb", "nodejs_20", "pixman", "qemu"]
 
 [workflows]
 runButton = "Project"

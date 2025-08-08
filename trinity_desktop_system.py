@@ -437,45 +437,20 @@ class TrinityDesktopSystem:
         """إعداد Trinity Emulator للتشغيل"""
         self.log("🎮 إعداد Trinity Emulator...")
         
-        trinity_dir = Path("./TrinityEmulator")
-        if not trinity_dir.exists():
-            self.log("❌ مجلد TrinityEmulator غير موجود")
+        # استخدام QEMU المثبت مع النظام
+        try:
+            result = subprocess.run(["qemu-system-x86_64", "--version"], 
+                                   capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                self.log("✅ QEMU متوفر وجاهز")
+                self.log(f"📝 إصدار QEMU: {result.stdout.strip()}")
+                return True
+            else:
+                self.log("❌ QEMU غير متاح")
+                return False
+        except Exception as e:
+            self.log(f"❌ خطأ في فحص QEMU: {e}")
             return False
-        
-        # فحص إذا كان هناك Makefile
-        makefile = trinity_dir / "Makefile"
-        if not makefile.exists():
-            self.log("🔧 تكوين Trinity Emulator...")
-            try:
-                # تشغيل configure script
-                configure_cmd = [
-                    "./configure",
-                    "--enable-sdl",
-                    "--enable-opengl",
-                    "--enable-gtk",
-                    "--enable-vnc",
-                    "--target-list=x86_64-softmmu",
-                    "--disable-werror"
-                ]
-                
-                result = subprocess.run(
-                    configure_cmd,
-                    cwd=trinity_dir,
-                    capture_output=True,
-                    text=True,
-                    timeout=300
-                )
-                
-                if result.returncode == 0:
-                    self.log("✅ تم تكوين Trinity Emulator")
-                else:
-                    self.log(f"⚠️ تحذير في التكوين: {result.stderr}")
-                    
-            except Exception as e:
-                self.log(f"⚠️ خطأ في التكوين: {e}")
-        
-        self.log("✅ Trinity Emulator جاهز")
-        return True
     
     def start_trinity_emulator(self):
         """تشغيل Trinity Emulator"""
@@ -485,87 +460,52 @@ class TrinityDesktopSystem:
             return False
         
         try:
-            trinity_dir = Path("./TrinityEmulator")
+            # استخدام QEMU المثبت
+            qemu_executable = "qemu-system-x86_64"
             
-            # البحث عن qemu executable
-            qemu_paths = [
-                trinity_dir / "build" / "qemu-system-x86_64",
-                trinity_dir / "x86_64-softmmu" / "qemu-system-x86_64",
-                trinity_dir / "qemu-system-x86_64"
+            self.log(f"🎮 تشغيل Trinity باستخدام: {qemu_executable}")
+            
+            # إعداد مجلد للقرص الوهمي
+            os.makedirs("/tmp/trinity", exist_ok=True)
+            
+            # إعداد أوامر التشغيل
+            trinity_cmd = [
+                qemu_executable,
+                "-m", "1024",  # ذاكرة أقل لـ Replit
+                "-smp", "1",   # معالج واحد
+                "-display", "vnc=localhost:5902,password=off",  # VNC على منفذ مختلف
+                "-netdev", "user,id=net0",
+                "-device", "e1000,netdev=net0",
+                "-boot", "menu=on",
+                "-nodefaults",  # بدون إعدادات افتراضية
+                "-nographic"    # بدون واجهة رسومية
             ]
             
-            qemu_executable = None
-            for path in qemu_paths:
-                if path.exists():
-                    qemu_executable = str(path)
-                    break
-            
-            if not qemu_executable:
-                self.log("⚠️ لم يتم العثور على Trinity executable، سأحاول البناء...")
-                # محاولة البناء
+            # تشغيل Trinity في thread منفصل
+            def run_trinity():
                 try:
-                    build_result = subprocess.run(
-                        ["make", "-j4"],
-                        cwd=trinity_dir,
-                        capture_output=True,
-                        text=True,
-                        timeout=600
+                    self.trinity_process = subprocess.Popen(
+                        trinity_cmd,
+                        stdout=open("/tmp/trinity.log", "w"),
+                        stderr=subprocess.STDOUT
                     )
                     
-                    if build_result.returncode == 0:
-                        self.log("✅ تم بناء Trinity Emulator")
-                        # البحث مرة أخرى
-                        for path in qemu_paths:
-                            if path.exists():
-                                qemu_executable = str(path)
-                                break
-                    else:
-                        self.log(f"❌ فشل البناء: {build_result.stderr}")
-                        return False
-                        
+                    self.log("✅ Trinity Emulator يعمل")
+                    self.trinity_process.wait()
+                    
                 except Exception as e:
-                    self.log(f"❌ خطأ في البناء: {e}")
-                    return False
+                    self.log(f"❌ خطأ في تشغيل Trinity: {e}")
             
-            if qemu_executable:
-                self.log(f"🎮 تشغيل Trinity من: {qemu_executable}")
-                
-                # إعداد أوامر التشغيل
-                trinity_cmd = [
-                    qemu_executable,
-                    "-enable-kvm",
-                    "-cpu", "host",
-                    "-m", "2048",
-                    "-smp", "2",
-                    "-display", "vnc=:2",
-                    "-netdev", "user,id=net0,hostfwd=tcp::5555-:5555",
-                    "-device", "e1000,netdev=net0",
-                    "-boot", "menu=on"
-                ]
-                
-                # تشغيل Trinity في thread منفصل
-                def run_trinity():
-                    try:
-                        self.trinity_process = subprocess.Popen(
-                            trinity_cmd,
-                            cwd=trinity_dir,
-                            stdout=open("/tmp/trinity.log", "w"),
-                            stderr=subprocess.STDOUT
-                        )
-                        
-                        self.log("✅ Trinity Emulator يعمل")
-                        self.trinity_process.wait()
-                        
-                    except Exception as e:
-                        self.log(f"❌ خطأ في تشغيل Trinity: {e}")
-                
-                trinity_thread = threading.Thread(target=run_trinity, daemon=True)
-                trinity_thread.start()
-                
-                time.sleep(5)  # انتظار حتى يبدأ Trinity
+            trinity_thread = threading.Thread(target=run_trinity, daemon=True)
+            trinity_thread.start()
+            
+            time.sleep(3)  # انتظار حتى يبدأ Trinity
+            
+            # فحص إذا كان المعالج يعمل
+            if self.trinity_process and self.trinity_process.poll() is None:
                 return True
             else:
-                self.log("❌ لم يتم العثور على Trinity executable")
+                self.log("⚠️ Trinity توقف مباشرة")
                 return False
                 
         except Exception as e:
