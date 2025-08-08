@@ -1,8 +1,8 @@
-modules = ["nodejs-20", "web", "python-3.12", "bash"]
+modules = ["nodejs-20", "web", "bash", "python-3.11"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["chromium", "curl", "firefox", "fluxbox", "git", "netcat", "nettools", "nodejs", "python3", "tigervnc", "wget", "x11vnc", "xvfb-run"]
+packages = ["chromium", "curl", "firefox", "fluxbox", "git", "netcat", "nettools", "nodejs", "python3", "tigervnc", "wget", "x11vnc", "xorg.xorgserver", "xvfb-run"]
 
 [workflows]
 runButton = "Project"
