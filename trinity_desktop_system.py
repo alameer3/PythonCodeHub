@@ -381,7 +381,7 @@ class TrinityDesktopSystem:
             env['PYTHONPATH'] = "./.pythonlibs/lib/python3.12/site-packages:" + env.get('PYTHONPATH', '')
             
             subprocess.Popen([
-                "./.pythonlibs/bin/python", "-m", "websockify",
+                "python3", "-m", "websockify",
                 "--web", "./noVNC_integrated",
                 "0.0.0.0:5000", "localhost:5900"
             ], stdout=open("/tmp/websockify.log", "w"), stderr=subprocess.STDOUT, env=env)
