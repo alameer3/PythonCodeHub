@@ -331,21 +331,18 @@ class TrinityDesktopSystem:
             return False
     
     def setup_vnc_password(self):
-        """إعداد كلمة مرور VNC آمنة"""
-        import secrets
-        import string
-        
-        # Generate a secure random password for VNC
-        password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+        """إعداد كلمة مرور VNC"""
+        # Use user-preferred password
+        password = "trinity123"
         
         try:
             vnc_dir = os.path.expanduser("~/.vnc")
             subprocess.run([
                 "x11vnc", "-storepasswd", password, f"{vnc_dir}/passwd"
             ], check=True, capture_output=True)
-            self.log(f"✅ تم إعداد كلمة مرور VNC آمنة: {password}")
+            self.log(f"✅ تم إعداد كلمة مرور VNC: {password}")
             
-            # Store password securely for web interface
+            # Store password for web interface
             with open(f"{vnc_dir}/web_passwd.txt", "w") as f:
                 f.write(password)
             os.chmod(f"{vnc_dir}/web_passwd.txt", 0o600)
@@ -357,7 +354,7 @@ class TrinityDesktopSystem:
             with open(f"{vnc_dir}/web_passwd.txt", "w") as f:
                 f.write(password)
             os.chmod(f"{vnc_dir}/web_passwd.txt", 0o600)
-            self.log("✅ تم إعداد كلمة مرور VNC آمنة (fallback)")
+            self.log("✅ تم إعداد كلمة مرور VNC (fallback)")
         
         return password
     
@@ -619,7 +616,7 @@ class TrinityDesktopSystem:
             self.log("  💻 VNC Client العادي: http://localhost:5000/vnc.html")
             self.log("  📱 Touch Interface: http://localhost:5000/touch.html")
             self.log("  🎮 Trinity Emulator: VNC :5902 (localhost:5902)")
-            # Password will be displayed in logs during startup
+            self.log("  🔐 كلمة مرور VNC: trinity123")
             
             # إبقاء النظام نشط
             self.log("🔁 إبقاء النظام المتكامل نشط...")

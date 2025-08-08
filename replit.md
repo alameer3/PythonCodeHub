@@ -25,7 +25,7 @@ Preferred communication style: Simple, everyday language.
 - **VNC Server**: x11vnc على المنفذ 5900
 - **WebSocket Bridge**: websockify على المنفذ 5000
 - **Web Interface**: noVNC متكامل مع واجهات مخصصة
-- **Password**: trinity123 للوصول الآمن
+- **Password**: trinity123 للوصول الآمن (حسب طلب المستخدم)
 
 ### Key Components
 - **Data Teleporting Module** (`hw/direct-express`): نقل البيانات بين Guest والHost
