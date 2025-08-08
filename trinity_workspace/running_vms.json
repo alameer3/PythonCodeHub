@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Android-Main",
+    "vnc_port": 5910,
+    "adb_port": 5555,
+    "status": "running",
+    "pid_file": "trinity_workspace/vm_0_Android-Main/vm.pid"
+  },
+  {
+    "name": "Android-Gaming",
+    "vnc_port": 5911,
+    "adb_port": 5556,
+    "status": "running",
+    "pid_file": "trinity_workspace/vm_1_Android-Gaming/vm.pid"
+  },
+  {
+    "name": "Android-Dev",
+    "vnc_port": 5912,
+    "adb_port": 5557,
+    "status": "running",
+    "pid_file": "trinity_workspace/vm_2_Android-Dev/vm.pid"
+  }
+]

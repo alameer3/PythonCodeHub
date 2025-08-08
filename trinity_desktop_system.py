@@ -661,28 +661,75 @@ class TrinityDesktopSystem:
             return False
     
     def start_trinity_emulator(self):
-        """تشغيل Trinity Emulator - إصدار محسن لـ Linux"""
-        self.log("🚀 بدء تشغيل Trinity Emulator...")
+        """تشغيل Trinity Emulator - إصدار محسن وكامل"""
+        self.log("🚀 بدء تشغيل Trinity Emulator الكامل...")
         
         if not self.prepare_trinity_emulator():
             self.log("⚠️ QEMU غير متاح")
             return False
         
-        # محاولة بناء Trinity إذا لم يكن مبني
+        # بناء Trinity إذا لم يكن مبني
         trinity_binary = "./TrinityEmulator/x86_64-softmmu/qemu-system-x86_64"
         if not os.path.exists(trinity_binary):
-            self.log("🔧 Trinity غير مبني، محاولة البناء...")
-            if not self.build_trinity_for_linux():
-                self.log("⚠️ فشل بناء Trinity، استخدام نسخة تجريبية...")
+            self.log("🔧 بناء Trinity من المصدر...")
+            try:
+                result = subprocess.run(
+                    ["./build_trinity.sh"],
+                    capture_output=True,
+                    text=True,
+                    timeout=1800  # 30 دقيقة للبناء
+                )
+                
+                if result.returncode == 0:
+                    self.log("✅ تم بناء Trinity بنجاح!")
+                else:
+                    self.log(f"❌ فشل بناء Trinity: {result.stderr[:200]}")
+                    self.log("📱 استخدام النسخة التجريبية...")
+                    return self.create_lightweight_android_demo()
+                    
+            except subprocess.TimeoutExpired:
+                self.log("❌ انتهت مهلة بناء Trinity")
+                return self.create_lightweight_android_demo()
+            except Exception as e:
+                self.log(f"❌ خطأ في بناء Trinity: {e}")
                 return self.create_lightweight_android_demo()
         
-        # إذا كان Trinity مبني، تشغيله
-        if os.path.exists(trinity_binary):
-            self.log("✅ تم العثور على Trinity المبني")
-            # هنا يمكن إضافة منطق تشغيل Trinity المخصص
-            return True
-        else:
-            # استخدام النسخة التجريبية
+        # تشغيل Trinity Comprehensive Launcher
+        self.log("🎮 تشغيل نظام Trinity الشامل...")
+        try:
+            result = subprocess.run(
+                ["python3", "trinity_comprehensive_launcher.py"],
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+            
+            if result.returncode == 0:
+                self.log("✅ نظام Trinity الشامل يعمل!")
+                self.log("📱 عدة Android VMs متاحة على منافذ VNC مختلفة")
+                
+                # فحص المنافذ النشطة للـ Trinity VMs
+                active_ports = []
+                for port in range(5910, 5920):
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    try:
+                        if sock.connect_ex(('localhost', port)) == 0:
+                            active_ports.append(port)
+                    finally:
+                        sock.close()
+                        
+                if active_ports:
+                    self.log(f"✅ Trinity VMs تعمل على المنافذ: {active_ports}")
+                    return True
+                else:
+                    self.log("⚠️ لم يتم العثور على Trinity VMs نشطة، استخدام النسخة التجريبية")
+                    return self.create_lightweight_android_demo()
+            else:
+                self.log(f"⚠️ مشكلة في تشغيل Trinity: {result.stderr[:200]}")
+                return self.create_lightweight_android_demo()
+                
+        except Exception as e:
+            self.log(f"❌ خطأ في Trinity launcher: {e}")
             return self.create_lightweight_android_demo()
     
     def check_services_health(self):
