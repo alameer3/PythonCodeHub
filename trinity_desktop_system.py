@@ -468,17 +468,30 @@ class TrinityDesktopSystem:
             # إعداد مجلد للقرص الوهمي
             os.makedirs("/tmp/trinity", exist_ok=True)
             
-            # إعداد أوامر التشغيل
+            # إنشاء قرص وهمي للتجربة
+            dummy_disk_path = "/tmp/trinity/dummy.img"
+            if not os.path.exists(dummy_disk_path):
+                try:
+                    subprocess.run([
+                        "qemu-img", "create", "-f", "qcow2", 
+                        dummy_disk_path, "100M"
+                    ], check=True, capture_output=True)
+                    self.log("✅ تم إنشاء قرص وهمي للمحاكي")
+                except:
+                    self.log("⚠️ لم يتم إنشاء القرص الوهمي")
+            
+            # إعداد أوامر التشغيل مع واجهة رسومية
             trinity_cmd = [
                 qemu_executable,
-                "-m", "1024",  # ذاكرة أقل لـ Replit
+                "-m", "512",   # ذاكرة أقل لـ Replit  
                 "-smp", "1",   # معالج واحد
-                "-display", "vnc=localhost:5902,password=off",  # VNC على منفذ مختلف
+                "-display", "vnc=:2,password=off",  # VNC على display :2 (منفذ 5902)
                 "-netdev", "user,id=net0",
-                "-device", "e1000,netdev=net0",
-                "-boot", "menu=on",
-                "-nodefaults",  # بدون إعدادات افتراضية
-                "-nographic"    # بدون واجهة رسومية
+                "-device", "e1000,netdev=net0", 
+                "-boot", "menu=on,splash-time=3000",  # إظهار قائمة التمهيد
+                "-drive", f"file={dummy_disk_path},format=qcow2,if=ide",  # قرص وهمي
+                "-vga", "std",     # كرت رسوميات قياسي
+                "-rtc", "base=utc"  # إعدادات الوقت
             ]
             
             # تشغيل Trinity في thread منفصل
