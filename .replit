@@ -5,25 +5,6 @@ channel = "stable-25_05"
 packages = ["chromium", "curl", "firefox", "fluxbox", "git", "netcat", "nettools", "nodejs", "python3", "tigervnc", "wget", "x11vnc", "xorg.xorgserver", "xvfb-run"]
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Desktop System"
-
-[[workflows.workflow]]
-name = "Desktop System"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
-waitForPort = 5000
 
 [agent]
 expertMode = true

@@ -1,47 +1,65 @@
-# Tool Project
+# Trinity Emulator Project
 
 ## Overview
-This project provides a remote desktop environment with VNC support, migrated from Docker to run natively in the Replit environment. It offers secure browser-based access to a full Linux desktop with GUI applications.
 
-## Project Structure
-- `main.py` - Main Python script for desktop environment system
-- `noVNC/` - Web-based VNC client with multiple interfaces:
-  - `vnc.html` - Standard noVNC interface
-  - `touch.html` - Touch-optimized interface for mobile devices
-  - `mobile.html` - Advanced mobile interface with custom controls
-  - `arabic.html` - Full Arabic RTL interface
-  - `defaults.json` - Touch-optimized default settings
-- `tool/` - Original Docker configuration (legacy):
-  - `Dockerfile` - Docker configuration for Ubuntu-based desktop environment
-  - `start.sh` - Startup script for initializing services
-- `.pythonlibs/` - Python virtual environment with websockify and dependencies
+Trinity is a high-performance Android emulator that utilizes graphics projection technology to achieve better compatibility, security, and efficiency compared to traditional emulators. The project includes both the main Trinity emulator and remote desktop client applications (bVNC, aRDP, aSPICE, and Opaque) for Android devices.
+
+The emulator runs Android-x86 guest OS on Windows-x64 Intel machines with optional NVIDIA GPU acceleration. It supports both volatile "live boot" mode and persistent installation mode, providing a complete Android environment with Google Play Store access through OpenGApps integration.
 
 ## User Preferences
-- Language preference: Arabic (full RTL support required)
-- Clean project structure preferred
-- Keep only essential files
-- Touch/mobile support for phone usage
-- **Single simplified interface that works reliably**
-- **No complex JavaScript that causes errors**
-- Simple auto-detection for mobile vs desktop
 
-## Recent Changes (August 2025)
-- **Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment
-- **Security Enhancements**: Updated configuration for Replit security best practices
-- **Port Configuration**: Updated to use port 5000 for websockify (Replit standard)
-- **Package Management**: Installed system packages (xvfb, x11vnc, chromium, fluxbox) and Python packages (websockify, numpy)
-- **Fixed Dependencies**: Resolved websockify module path issues using proper Python environment
-- **VNC Server**: Fixed x11vnc configuration for Replit compatibility
-- All 8 core services working: X Display, Fluxbox, Chromium, VNC Server, WebSocket, HTTP Server, noVNC, CloudFlared
-- **Service Status**: 8/8 services operational
-- VNC remote desktop fully functional with password: 123456
-- CloudFlared provides secure external access via HTTPS tunnels
-- **Mobile Support Added**: Created multiple mobile interfaces
-  - `touch.html`: Touch-optimized interface with gesture support
-  - `mobile.html`: Advanced mobile interface with custom controls
-  - `arabic.html`: Full Arabic RTL interface with proper encoding
-- Touch controls enabled for smartphone and tablet usage
-- Responsive design with mobile-friendly controls and gestures
-- Fixed Arabic language display issues with proper UTF-8 encoding
-- RTL (right-to-left) text direction for Arabic interface
-- Custom Arabic buttons and status messages
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Emulation Architecture
+- **Host Platform**: Windows-x64 on Intel architecture with optional NVIDIA GPU support
+- **Guest OS**: Android-x86 with OpenGApps integration
+- **Virtualization Backend**: Intel HAXM or Windows Hyper-V for CPU virtualization
+- **Graphics**: Novel graphics projection space technology for efficient rendering
+- **Memory Management**: Supports memory over-commit without requiring full guest RAM pinning
+
+### Remote Desktop Clients
+- **Multi-Protocol Support**: VNC, RDP, SPICE, and oVirt/RHEV/Proxmox protocols
+- **Cross-Platform**: Android applications with both free and pro versions
+- **Backend Integration**: Supports hardware RDMA devices and Soft-RoCE (rxe) interfaces
+
+### QEMU Integration
+The project includes QEMU emulation components with:
+- **COLO (COarse-grained LOck-stepping)**: High availability through primary/secondary VM replication
+- **Advanced Features**: RDMA live migration, memory hotplug, throttling, and replay functionality
+- **Block Device Management**: qcow2 format support with L2/refcount caching
+- **Hardware Emulation**: Support for various device types including USB, PCI Express, audio, and network interfaces
+
+### Storage and Memory
+- **Volatile Mode**: 8GB storage limit, data erased on reboot
+- **Persistent Mode**: Full installation with permanent storage
+- **Memory Backend**: File-based and RAM-based backends with configurable caching
+- **Hot-plug Support**: Runtime device addition/removal capabilities
+
+### Network and Connectivity
+- **ADB Integration**: Android Debug Bridge connectivity for development
+- **Network Emulation**: Various network adapter emulations (e1000, virtio-net, etc.)
+- **Remote Access**: Multiple remote desktop protocols for cross-platform access
+
+## External Dependencies
+
+### Hardware Requirements
+- 4-core Intel CPU with VT support
+- 8GB RAM minimum
+- 128GB storage
+- 1920x1080 display
+- Optional: NVIDIA GPU with driver version 497.09+
+
+### Software Dependencies
+- **Windows Virtualization**: Intel HAXM v7.6.5 or Windows Hyper-V
+- **Android Components**: Android-x86 guest OS with OpenGApps
+- **Development Libraries**: NSS for cryptographic functions, librdmacm and libibverbs for RDMA support
+- **Build Tools**: Standard development toolchain for QEMU compilation
+
+### Third-Party Integrations
+- **OpenGApps**: Google services integration for Android guest
+- **NVIDIA Drivers**: Optional GPU acceleration support
+- **Intel Technologies**: HAXM virtualization and VT support
+- **Network Protocols**: SocketCAN for automotive applications, various remote desktop protocols
+- **Storage Formats**: qcow2, raw images, and various block device backends
