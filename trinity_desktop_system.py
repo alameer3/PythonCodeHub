@@ -468,30 +468,39 @@ class TrinityDesktopSystem:
             # إعداد مجلد للقرص الوهمي
             os.makedirs("/tmp/trinity", exist_ok=True)
             
-            # إنشاء قرص وهمي للتجربة
-            dummy_disk_path = "/tmp/trinity/dummy.img"
-            if not os.path.exists(dummy_disk_path):
+            # فحص وجود Android ISO
+            android_iso_path = "/tmp/trinity/android-x86.iso"
+            if not os.path.exists(android_iso_path):
+                self.log("❌ لم يتم العثور على Android ISO")
+                return False
+            
+            # إنشاء قرص صلب للنظام
+            android_disk_path = "/tmp/trinity/android_system.img"
+            if not os.path.exists(android_disk_path):
                 try:
                     subprocess.run([
                         "qemu-img", "create", "-f", "qcow2", 
-                        dummy_disk_path, "100M"
+                        android_disk_path, "4G"  # مساحة أكبر لنظام Android
                     ], check=True, capture_output=True)
-                    self.log("✅ تم إنشاء قرص وهمي للمحاكي")
-                except:
-                    self.log("⚠️ لم يتم إنشاء القرص الوهمي")
+                    self.log("✅ تم إنشاء قرص النظام لـ Android (4GB)")
+                except Exception as e:
+                    self.log(f"⚠️ خطأ في إنشاء قرص النظام: {e}")
+                    return False
             
-            # إعداد أوامر التشغيل مع واجهة رسومية
+            self.log(f"📱 Android ISO متاح: {os.path.getsize(android_iso_path) // 1024 // 1024} MB")
+            
+            # إعداد أوامر التشغيل لـ Android (محسّنة لـ Replit)
             trinity_cmd = [
                 qemu_executable,
-                "-m", "512",   # ذاكرة أقل لـ Replit  
-                "-smp", "1",   # معالج واحد
+                "-m", "256",    # ذاكرة قليلة جداً لـ Replit  
                 "-display", "vnc=:2,password=off",  # VNC على display :2 (منفذ 5902)
-                "-netdev", "user,id=net0",
-                "-device", "e1000,netdev=net0", 
-                "-boot", "menu=on,splash-time=3000",  # إظهار قائمة التمهيد
-                "-drive", f"file={dummy_disk_path},format=qcow2,if=ide",  # قرص وهمي
-                "-vga", "std",     # كرت رسوميات قياسي
-                "-rtc", "base=utc"  # إعدادات الوقت
+                "-cdrom", android_iso_path,  # Android ISO كـ CDROM
+                "-boot", "order=d",  # التمهيد من CD فقط
+                "-vga", "std",      # كرت رسوميات قياسي
+                "-machine", "pc",   # نوع الآلة القياسي
+                "-cpu", "qemu64",   # معالج متوافق
+                "-netdev", "user,id=net0",  # شبكة بسيطة
+                "-device", "rtl8139,netdev=net0"  # كرت شبكة بسيط
             ]
             
             # تشغيل Trinity في thread منفصل
