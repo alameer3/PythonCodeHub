@@ -23,6 +23,13 @@ class TrinityDesktopSystem:
             'trinity_gui': 8080,
             'adb': 5555
         }
+        
+        # Replit security configuration
+        self.replit_config = {
+            'bind_host': '0.0.0.0',  # Required for Replit
+            'bind_port': 5000,       # Fixed port for Replit
+            'environment': 'replit'
+        }
         self.trinity_process = None
         self.setup_environment()
     
@@ -57,10 +64,15 @@ class TrinityDesktopSystem:
                 except:
                     pass
         
-        # إعداد متغيرات البيئة
-        os.environ['TZ'] = 'Asia/Riyadh'
+        # إعداد متغيرات البيئة للـ Replit
+        os.environ['TZ'] = 'UTC'  # Safer for Replit environment
         os.environ['DISPLAY'] = ':1'
         os.environ['TRINITY_HOME'] = os.path.abspath('./TrinityEmulator')
+        
+        # Replit-specific environment variables
+        os.environ['REPLIT_ENVIRONMENT'] = 'true'
+        os.environ['WEBSOCKET_HOST'] = self.replit_config['bind_host']
+        os.environ['WEBSOCKET_PORT'] = str(self.replit_config['bind_port'])
         
         self.log("✅ تم إعداد البيئة الأساسية")
     
@@ -378,17 +390,45 @@ class TrinityDesktopSystem:
         
         try:
             env = os.environ.copy()
+            # Set Python path to include the virtual environment
             env['PYTHONPATH'] = "./.pythonlibs/lib/python3.12/site-packages:" + env.get('PYTHONPATH', '')
+            env['PATH'] = "./.pythonlibs/bin:" + env.get('PATH', '')
             
-            subprocess.Popen([
-                "python3", "-m", "websockify",
-                "--web", "./noVNC_integrated",
-                "0.0.0.0:5000", "localhost:5900"
-            ], stdout=open("/tmp/websockify.log", "w"), stderr=subprocess.STDOUT, env=env)
+            # Create web directory if not exists
+            web_dir = os.path.abspath("./noVNC_integrated")
+            if not os.path.exists(web_dir):
+                os.makedirs(web_dir, exist_ok=True)
             
-            time.sleep(3)
-            self.log("✅ WebSocket يعمل على المنفذ 5000")
-            return True
+            # Use the Python executable from the virtual environment
+            python_exe = "./.pythonlibs/bin/python" if os.path.exists("./.pythonlibs/bin/python") else "python3"
+            
+            websockify_cmd = [
+                python_exe, "-m", "websockify",
+                "--web", web_dir,
+                "--verbose",
+                f"{self.replit_config['bind_host']}:{self.replit_config['bind_port']}", 
+                "localhost:5900"
+            ]
+            
+            self.log(f"🔧 تشغيل: {' '.join(websockify_cmd)}")
+            
+            process = subprocess.Popen(
+                websockify_cmd,
+                stdout=open("/tmp/websockify.log", "w"),
+                stderr=subprocess.STDOUT,
+                env=env,
+                cwd="."
+            )
+            
+            # Wait a bit and check if process is still running
+            time.sleep(5)
+            if process.poll() is None:
+                self.log(f"✅ WebSocket يعمل على {self.replit_config['bind_host']}:{self.replit_config['bind_port']}")
+                return True
+            else:
+                self.log("❌ WebSocket توقف مباشرة")
+                return False
+                
         except Exception as e:
             self.log(f"❌ فشل تشغيل WebSocket: {e}")
             return False
